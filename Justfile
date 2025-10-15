@@ -152,5 +152,6 @@ info:
 [group('release')]
 release version:
     @echo "Creating release {{version}}"
+    @git push origin master
     git tag -a {{version}} -m "Release {{version}}"
     git push origin {{version}}
