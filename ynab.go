@@ -19,11 +19,20 @@ const (
 )
 
 type budget struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID             string `json:"id"`
+	Name           string `json:"name"`
+	LastModifiedOn string `json:"last_modified_on"`
 }
 
-func (b budget) Title() string       { return b.Name }
+func (b budget) Title() string {
+	if b.LastModifiedOn != "" {
+		t, err := time.Parse(time.RFC3339, b.LastModifiedOn)
+		if err == nil {
+			return fmt.Sprintf("%s (Last Modified: %s)", b.Name, t.Format("2006-01-02"))
+		}
+	}
+	return b.Name
+}
 func (b budget) Description() string { return b.ID }
 func (b budget) FilterValue() string { return b.Name }
 
@@ -51,7 +60,8 @@ type budgetDetail struct {
 }
 
 type currencyFormat struct {
-	ISOCode string `json:"iso_code"`
+	ISOCode        string `json:"iso_code"`
+	CurrencySymbol string `json:"currency_symbol"`
 }
 
 type account struct {
@@ -153,7 +163,19 @@ func fetchBudgets(token string) tea.Msg {
 		return budgetsFetchedMsg{err: err}
 	}
 
-	return budgetsFetchedMsg{budgets: budgetsResp.Data.Budgets}
+	// Sort budgets by last modified date (most recent first)
+	budgets := budgetsResp.Data.Budgets
+	for i := 0; i < len(budgets)-1; i++ {
+		for j := i + 1; j < len(budgets); j++ {
+			ti, errI := time.Parse(time.RFC3339, budgets[i].LastModifiedOn)
+			tj, errJ := time.Parse(time.RFC3339, budgets[j].LastModifiedOn)
+			if errI == nil && errJ == nil && tj.After(ti) {
+				budgets[i], budgets[j] = budgets[j], budgets[i]
+			}
+		}
+	}
+
+	return budgetsFetchedMsg{budgets: budgets}
 }
 
 // createBudgetSummary extracts summary statistics from a budget.
@@ -184,9 +206,15 @@ func createBudgetSummary(budget budgetDetail, fileSize int64) budgetSummary {
 		}
 	}
 
+	// Format currency with symbol if available
+	currency := budget.CurrencyFormat.ISOCode
+	if budget.CurrencyFormat.CurrencySymbol != "" {
+		currency = fmt.Sprintf("%s (%s)", budget.CurrencyFormat.ISOCode, budget.CurrencyFormat.CurrencySymbol)
+	}
+
 	return budgetSummary{
 		Name:                 budget.Name,
-		Currency:             budget.CurrencyFormat.ISOCode,
+		Currency:             currency,
 		FirstMonth:           budget.FirstMonth,
 		LastMonth:            budget.LastMonth,
 		FileSize:             fileSize,

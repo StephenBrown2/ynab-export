@@ -148,6 +148,8 @@ Now that you have your exported JSON file:
 
 ## Screenshots
 
+### 1. Welcome Screen (Token Entry)
+
 ```text
 ┌────────────────────────────────────────────────────┐
 │ YNAB Budget Exporter                               │
@@ -164,6 +166,87 @@ Now that you have your exported JSON file:
 │ Enter your YNAB API token: ••••••••••••••••••••   │
 │                                                    │
 │ Press Enter to continue • Ctrl+C to quit          │
+└────────────────────────────────────────────────────┘
+```
+
+### 2. Token Validation
+
+```text
+┌────────────────────────────────────────────────────┐
+│ YNAB Budget Exporter                               │
+│                                                    │
+│ ✓ Token validated successfully                     │
+│                                                    │
+│ Fetching your budgets...                          │
+└────────────────────────────────────────────────────┘
+```
+
+### 3. Budget Selection
+
+```text
+┌────────────────────────────────────────────────────┐
+│ YNAB Budget Exporter                               │
+│                                                    │
+│ Select a budget to export:                        │
+│                                                    │
+│ > Personal Budget (Last Modified: 2025-10-14)     │
+│   f1a2b3c4-d5e6-7f8g-9h0i-1j2k3l4m5n6o             │
+│                                                    │
+│   Family Budget (Last Modified: 2025-10-10)       │
+│   a1b2c3d4-e5f6-7g8h-9i0j-1k2l3m4n5o6p             │
+│                                                    │
+│   Business Budget (Last Modified: 2025-09-28)     │
+│   z9y8x7w6-v5u4-t3s2-r1q0-p9o8n7m6l5k4             │
+│                                                    │
+│ Use ↑/↓ to navigate • / to search • Enter to      │
+│ select • Esc to go back • q/Ctrl+C to quit        │
+└────────────────────────────────────────────────────┘
+```
+
+### 4. Export in Progress
+
+```text
+┌────────────────────────────────────────────────────┐
+│ YNAB Budget Exporter                               │
+│                                                    │
+│ Exporting Budget...                               │
+│                                                    │
+│ Downloading budget: Personal Budget               │
+│ Please wait...                                    │
+└────────────────────────────────────────────────────┘
+```
+
+### 5. Export Complete with Budget Summary
+
+```text
+┌────────────────────────────────────────────────────┐
+│ ✓ Export Complete!                                │
+│                                                    │
+│ Budget: Personal Budget                           │
+│ Saved to: ~/Downloads/ynab-export-personal-       │
+│           budget-20251015-143022.json             │
+│                                                    │
+│ Budget Summary:                                   │
+│   Currency:     USD ($)                           │
+│   Accounts:     8 (plus 2 closed)                 │
+│   Categories:   24 (plus 3 hidden, 1 deleted)     │
+│   Payees:       142                               │
+│   Transactions: 1,847                             │
+│   Date Range:   Jan 2023 to Oct 2025              │
+│   File Size:    2.3 MB                            │
+│                                                    │
+│ You can now import this file into Actual Budget:  │
+│   1. Open Actual Budget                           │
+│   2. If a budget is already open, select the      │
+│      dropdown menu and 'Close File'               │
+│   3. Select 'Import file'                         │
+│   4. Choose 'nYNAB'                               │
+│   5. Select the exported JSON file                │
+│   6. Once imported, review your budget and        │
+│      follow cleanup steps at                      │
+│      actualbudget.org/docs/migration/nynab#cleanup│
+│                                                    │
+│ Press Enter or q to quit                          │
 └────────────────────────────────────────────────────┘
 ```
 
