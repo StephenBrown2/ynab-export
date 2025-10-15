@@ -19,15 +19,15 @@ This tool simplifies the export process described in the [Actual Budget migratio
 
 Download the latest release for your operating system from the [Releases page][releases].
 
-Choose the appropriate file:
+Choose the appropriate binary:
 
-- **Windows**: `ynab-export_*_Windows_x86_64.zip`
-- **macOS (Intel)**: `ynab-export_*_Darwin_x86_64.tar.gz`
-- **macOS (Apple Silicon)**: `ynab-export_*_Darwin_arm64.tar.gz`
-- **Linux (64-bit)**: `ynab-export_*_Linux_x86_64.tar.gz`
-- **Linux (ARM64)**: `ynab-export_*_Linux_arm64.tar.gz`
+- **Windows**: `ynab-export_*_windows_amd64.exe`
+- **macOS (Intel)**: `ynab-export_*_darwin_amd64`
+- **macOS (Apple Silicon)**: `ynab-export_*_darwin_arm64`
+- **Linux (64-bit)**: `ynab-export_*_linux_amd64`
+- **Linux (ARM64)**: `ynab-export_*_linux_arm64`
 
-Extract the archive and run the executable.
+The binaries are ready to run - no extraction or installation needed!
 
 ### Build from Source
 
@@ -81,17 +81,27 @@ Direct link: [YNAB Developer Settings][ynab-developer]
 
 ### Step 2: Run the Tool
 
-Simply run the executable:
+Simply run the downloaded binary:
+
+**Linux/macOS:**
 
 ```bash
-./ynab-export
+# Make it executable (first time only)
+chmod +x ynab-export_*_linux_amd64  # or darwin_amd64/darwin_arm64
+
+# Run it
+./ynab-export_*_linux_amd64
 ```
 
-On Windows, double-click `ynab-export.exe` or run from Command Prompt:
+**Windows:**
+
+Double-click the `.exe` file or run from Command Prompt:
 
 ```cmd
-ynab-export.exe
+ynab-export_0.0.1_windows_amd64.exe
 ```
+
+> **Tip:** You can rename the binary to simply `ynab-export` (or `ynab-export.exe` on Windows) for easier use.
 
 ### Step 3: Follow the Prompts
 
@@ -182,7 +192,11 @@ Check that you have write permissions to your Downloads folder.
 macOS may block the binary because it's not from an identified developer. To run it:
 
 ```bash
-xattr -d com.apple.quarantine ynab-export
+# Replace with your actual binary name, e.g., ynab-export_0.0.1_darwin_arm64
+xattr -d com.apple.quarantine ynab-export_*_darwin_*
+
+# Or make it executable
+chmod +x ynab-export_*_darwin_*
 ```
 
 Or right-click the file, select "Open", and click "Open" in the security dialog.
