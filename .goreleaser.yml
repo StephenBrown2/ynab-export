@@ -14,40 +14,40 @@ builds:
   - id: ynab-export
     main: .
     binary: ynab-export
-    
+
     # Build for multiple platforms
     goos:
       - linux
       - darwin
       - windows
-    
+
     goarch:
       - amd64
       - arm64
-    
+
     # Exclude incompatible combinations
     ignore:
       - goos: windows
         goarch: arm64  # Windows ARM64 can be enabled if needed
-    
+
     # Build flags
     flags:
       - -trimpath
-    
+
     # Linker flags for smaller binaries
     ldflags:
       - -s -w
       - -X main.version={{.Version}}
       - -X main.commit={{.Commit}}
       - -X main.date={{.Date}}
-    
+
     # Environment variables for build
     env:
       - CGO_ENABLED=0
+      - GOEXPERIMENT=jsonv2
 
 archives:
   - id: ynab-export-archives
-    format: tar.gz
     name_template: >-
       {{ .ProjectName }}_
       {{- .Version }}_
@@ -56,12 +56,7 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
-    
-    # Use zip for Windows
-    format_overrides:
-      - goos: windows
-        format: zip
-    
+
     files:
       - README.md
       - LICENSE*
@@ -101,35 +96,35 @@ release:
   github:
     owner: StephenBrown2
     name: ynab-export
-  
+
   # Draft release (change to false for automatic release)
   draft: false
-  
+
   # Mark as prerelease
   prerelease: auto
-  
+
   # Release name template
   name_template: "{{.ProjectName}} v{{.Version}}"
-  
+
   # Header and footer for release notes
   header: |
     ## YNAB Budget Exporter v{{ .Version }}
-    
+
     A simple tool to export your YNAB budget for import into Actual Budget.
-    
+
   footer: |
     ---
-    
+
     **Full Changelog**: https://github.com/StephenBrown2/ynab-export/compare/{{ .PreviousTag }}...{{ .Tag }}
-    
+
     ### Installation
-    
+
     Download the appropriate binary for your platform from the assets below.
-    
+
     ### Usage
-    
+
     1. Download the binary for your operating system
     2. Run the executable (no installation required)
     3. Follow the on-screen prompts
-    
+
     For more information, see the [README](https://github.com/StephenBrown2/ynab-export/blob/main/README.md).
