@@ -25,11 +25,6 @@ builds:
       - amd64
       - arm64
 
-    # Exclude incompatible combinations
-    ignore:
-      - goos: windows
-        goarch: arm64  # Windows ARM64 can be enabled if needed
-
     # Build flags
     flags:
       - -trimpath
@@ -48,7 +43,7 @@ builds:
 
 # Disable archives - we want raw binaries in the release
 archives:
-  - format: binary
+  - formats: binary
 
 checksum:
   name_template: 'checksums.txt'
@@ -60,6 +55,7 @@ snapshot:
 changelog:
   sort: asc
   use: github
+  format: "{{.SHA}}: {{.Message}} (@{{.AuthorUsername}})"
   filters:
     exclude:
       - '^docs:'
