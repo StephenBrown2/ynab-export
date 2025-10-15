@@ -7,10 +7,11 @@ This tool simplifies the export process described in the [Actual Budget migratio
 ## Features
 
 - 🎯 **Beginner-friendly**: Interactive prompts guide you through the entire process
-- 🔒 **Secure**: Your API token is masked as you type and never stored
+- �️ **Dual UI modes**: Graphical interface (GUI) or Terminal interface (TUI)
+- �🔒 **Secure**: Your API token is masked as you type and never stored
 - 🚀 **Fast**: Direct API integration with YNAB
 - 💾 **Automatic saving**: Exports are automatically saved to your Downloads folder
-- 🖥️ **Cross-platform**: Works on Windows, macOS, and Linux
+- 🌐 **Cross-platform**: Works on Windows, macOS, and Linux
 - 📦 **Zero dependencies**: Single binary with no installation required
 
 ## Installation
@@ -91,19 +92,42 @@ Simply run the downloaded binary:
 # Make it executable (first time only)
 chmod +x ynab-export_*_linux_amd64  # or darwin_amd64/darwin_arm64
 
-# Run it
+# Run it (GUI launches automatically when double-clicked)
 ./ynab-export_*_linux_amd64
+
+# Or force terminal mode:
+./ynab-export_*_linux_amd64 --tui
 ```
 
 **Windows:**
 
-Double-click the `.exe` file or run from Command Prompt:
+Double-click the `.exe` file for GUI mode, or run from Command Prompt:
 
 ```cmd
 ynab-export_0.0.1_windows_amd64.exe
+
+# Or force terminal mode:
+ynab-export_0.0.1_windows_amd64.exe --tui
 ```
 
 > **Tip:** You can rename the binary to simply `ynab-export` (or `ynab-export.exe` on Windows) for easier use.
+
+#### UI Mode Selection
+
+The tool automatically chooses the appropriate interface:
+
+- **GUI mode** (default): Launches when you double-click the executable or run it outside a terminal
+- **TUI mode** (terminal): Launches automatically when run from a terminal/console
+
+You can explicitly select a mode with command-line flags:
+
+```bash
+# Force graphical interface
+./ynab-export --gui
+
+# Force terminal interface
+./ynab-export --tui
+```
 
 ### Step 3: Follow the Prompts
 

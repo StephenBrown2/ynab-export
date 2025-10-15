@@ -176,8 +176,9 @@ This repository uses **Commit signing**: Enabled (SSH)
 
 ```text
 ynab-export/
-├── main.go              # Application entry point
+├── main.go              # Application entry point with UI selection
 ├── tui.go               # Terminal UI implementation (Bubble Tea)
+├── gui.go               # Graphical UI implementation (Fyne)
 ├── ynab.go              # YNAB API integration and data handling
 ├── go.mod               # Go module definition
 ├── go.sum               # Go module checksums
@@ -200,15 +201,23 @@ ynab-export/
 ### main.go
 
 - Entry point with CLI flag parsing
-- Handles `--version` flag
+- Handles `--version`, `--tui`, and `--gui` flags
 - Checks for `YNAB_API_TOKEN` environment variable
-- Initializes TUI
+- Detects terminal context and selects appropriate UI
+- Initializes TUI or GUI based on context/flags
 
 ### tui.go
 
-- Implements Bubble Tea state machine
+- Implements Bubble Tea state machine for terminal interface
 - States: token validation, budget selection, exporting, done, error
-- Handles all user interaction and display
+- Handles all user interaction and display in terminal mode
+
+### gui.go
+
+- Implements Fyne graphical interface
+- Mirrors TUI flow: token entry, budget selection, export, completion
+- Uses synchronous wrapper functions from ynab.go
+- Suitable for double-click execution
 
 ### ynab.go
 
@@ -216,6 +225,7 @@ ynab-export/
 - Budget fetching and exporting
 - Data structure definitions
 - Budget summary calculations
+- Provides both async (Bubble Tea messages) and sync (return values) functions
 
 ## Release Process
 
@@ -304,6 +314,54 @@ just fmt
 just lint-fix
 ```
 
+## Testing
+
+### Testing the UI Modes
+
+This project has two UI modes that should be tested:
+
+**Terminal UI (TUI)**:
+
+```bash
+# Run in terminal
+just run
+
+# Or force TUI mode
+./ynab-export --tui
+```
+
+**Graphical UI (GUI)**:
+
+```bash
+# Force GUI mode (in terminal)
+./ynab-export --gui
+
+# Or double-click the binary (auto-detects GUI)
+# On Linux/macOS: chmod +x ynab-export first
+```
+
+**Auto-detection**:
+
+- When run from terminal: defaults to TUI
+- When double-clicked: defaults to GUI
+- Use `--tui` or `--gui` flags to override
+
+### GUI-Specific Testing Notes
+
+The GUI implementation uses Fyne v2.6.3 and should be tested on multiple platforms:
+
+- **Linux**: Requires X11/Wayland display server
+- **macOS**: Should work natively
+- **Windows**: Should work natively
+
+Common GUI issues to check:
+
+- Window sizing and layout
+- Token entry field behavior
+- Budget list selection
+- Progress dialogs during export
+- Completion screen display
+
 ## Best Practices for Agents
 
 1. **Always use `just` commands** - They include necessary environment setup
@@ -311,8 +369,9 @@ just lint-fix
 3. **Run `just check` before suggesting commits** - Ensures quality
 4. **Use conventional commit messages** - Keeps history clean
 5. **Test build after changes** - Run `just build` to verify
-6. **Update documentation** - Keep README.md in sync with code changes
-7. **Check for errors** - Use VS Code's problem panel or `just lint`
+6. **Test both UI modes** - Verify TUI and GUI work correctly
+7. **Update documentation** - Keep README.md in sync with code changes
+8. **Check for errors** - Use VS Code's problem panel or `just lint`
 
 ## Quick Reference Card
 

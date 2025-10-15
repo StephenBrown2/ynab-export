@@ -87,9 +87,10 @@ type budgetsFetchedMsg struct {
 }
 
 type exportDoneMsg struct {
-	err     error
-	path    string
-	summary budgetSummary
+	err      error
+	path     string
+	jsonData []byte
+	summary  budgetSummary
 }
 
 type tokenValidatedMsg struct {
