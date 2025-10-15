@@ -1,0 +1,297 @@
+# golangci-lint configuration
+# Version 2 schema - compatible with golangci-lint v2.5+
+version: "2"
+
+run:
+  # Timeout for analysis
+  timeout: 5m
+
+  # Include test files
+  tests: true
+
+  # Modules download mode
+  modules-download-mode: readonly
+
+  # Allow multiple parallel golangci-lint instances
+  allow-parallel-runners: true
+
+# Output configuration
+output:
+  formats:
+    text:
+      path: stdout
+      print-linter-name: true
+      print-issued-lines: true
+      colors: true
+  show-stats: true
+
+# Linters configuration
+linters:
+  # Start with no linters enabled by default
+  default: none
+
+  # Enable specific linters
+  enable:
+    # Enabled by Default (good baseline)
+    - errcheck      # Check for unchecked errors
+    - govet         # Reports suspicious constructs
+    - ineffassign   # Detect ineffectual assignments
+    - staticcheck   # Go static analysis (lots of checks)
+    - unused        # Check for unused constants, variables, functions, etc.
+
+    # Code Quality & Style
+    - misspell      # Find commonly misspelled English words
+    - revive        # Fast, configurable, extensible, flexible linter
+    - unconvert     # Remove unnecessary type conversions
+    - unparam       # Reports unused function parameters
+    - whitespace    # Checks for unnecessary whitespace
+
+    # Bug Detection
+    - bodyclose     # Check HTTP response body is closed
+    - errname       # Check error names follow conventions
+    - errorlint     # Find code that will cause problems with Go 1.13+ error wrapping
+    - exhaustive    # Check exhaustiveness of enum switch statements
+    - gocritic      # Provides many diagnostics that check for bugs, performance, and style
+    - nilerr        # Find code that returns nil even if it checks that error is not nil
+    - nilnil        # Check that there is no nil/nil return
+    - noctx         # Find sending HTTP request without context.Context
+    - prealloc      # Find slice declarations that could potentially be pre-allocated
+
+    # Performance
+    - makezero      # Finds slice declarations with non-zero initial length
+    - perfsprint    # Checks that fmt.Sprintf can be replaced with a faster alternative
+
+    # Security
+    - gosec         # Inspect source code for security problems
+
+    # Complexity
+    - gocyclo       # Compute cyclomatic complexities
+    - gocognit      # Compute cognitive complexities
+    - nestif        # Reports deeply nested if statements
+
+    # Code Smells
+    - godot         # Check if comments end with a period
+    - goconst       # Find repeated strings that could be replaced by constants
+    - dupl          # Code clone detection
+
+    # Best Practices
+    - contextcheck  # Check whether functions use a non-inherited context
+    - copyloopvar   # Check for places where loop variables are copied
+    - decorder      # Required order of `type`, `const`, `var` and `func` declarations inside a file.
+    - dogsled       # Check for too many blank identifiers (e.g., x, _, _, _, := f())
+    - durationcheck # Check for two durations multiplied together
+    - forbidigo     # Forbid specific identifiers
+    - gomoddirectives # Manage go.mod directives
+    - goprintffuncname # Check printf-like functions are named correctly
+    - loggercheck   # Check key-value pairs for common logger libraries
+    - nakedret      # Finds naked returns in functions > a certain length
+    - nolintlint    # Ensure nolint directives are properly formatted
+    - nosprintfhostport # Check for misuse of Sprintf with host:port
+    - testableexamples # Check examples are testable
+    - thelper       # Detect test helpers without t.Helper()
+    - tparallel     # Detect inappropriate usage of t.Parallel()
+    - usestdlibvars # Detect the possibility to use variables/constants from the Go standard library
+    - wastedassign  # Find wasted assignment statements
+    - wrapcheck     # Checks that errors returned from external packages are wrapped
+
+  # Linter-specific settings
+  settings:
+    # gofumpt is configured in formatters section below, not here
+
+    # govet settings
+    govet:
+      # Enable all analyzers
+      enable-all: true
+
+    # errcheck - check for unchecked errors
+    errcheck:
+      # Report assignment of errors to blank identifier
+      check-blank: true
+      # Check type assertions
+      check-type-assertions: true
+
+    # gocritic settings
+    gocritic:
+      # Enable multiple check groups
+      enabled-tags:
+        - diagnostic
+        - style
+        - performance
+        - experimental
+        - opinionated
+
+      # Disable specific checks
+      disabled-checks:
+        - paramTypeCombine  # Can be too opinionated
+        - unnamedResult     # Can be too restrictive
+        - hugeParam         # Can be noisy
+
+    # gocyclo - cyclomatic complexity
+    gocyclo:
+      # Minimal cyclomatic complexity to report
+      min-complexity: 15
+
+    # gocognit - cognitive complexity
+    gocognit:
+      # Minimal cognitive complexity to report
+      min-complexity: 20
+
+    # gosec - security checks
+    gosec:
+      # Severity level to report
+      severity: medium
+      confidence: medium
+
+    # revive configuration
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+        - name: context-keys-type
+        - name: dot-imports
+        - name: error-return
+        - name: error-strings
+        - name: error-naming
+        - name: exported
+        - name: if-return
+        - name: increment-decrement
+        - name: var-naming
+        - name: var-declaration
+        - name: package-comments
+        - name: range
+        - name: receiver-naming
+        - name: time-naming
+        - name: unexported-return
+        - name: indent-error-flow
+        - name: errorf
+        - name: empty-block
+        - name: superfluous-else
+        - name: unused-parameter
+        - name: unreachable-code
+        - name: redefines-builtin-id
+
+    # nakedret - naked returns
+    nakedret:
+      # Max function length to allow naked returns
+      max-func-lines: 30
+
+    # nolintlint - ensure nolint directives are properly formatted
+    nolintlint:
+      # Require explanation after nolint directive
+      require-explanation: true
+      # Require specific linter names in nolint directive
+      require-specific: true
+
+    # nestif - nested if statements
+    nestif:
+      # Minimal complexity of if statements to report
+      min-complexity: 4
+
+    # misspell settings
+    misspell:
+      # Locale to use
+      locale: US
+      # Ignore words
+      ignore-rules:
+        - ynab
+        - nynab
+
+    # goconst settings
+    goconst:
+      # Minimal length of string constant
+      min-len: 3
+      # Minimum occurrences to report
+      min-occurrences: 3
+
+    # dupl - code clone detection
+    dupl:
+      # Threshold for code clone detection
+      threshold: 100
+
+    # forbidigo - forbid specific identifiers
+    forbidigo:
+      # Forbid the following identifiers (can be regexp)
+      forbid:
+        - pattern: 'fmt\.Print.*'
+          msg: 'Use proper logging instead'
+        - pattern: 'log\.Print.*'
+          msg: 'Use structured logging'
+      # Exclude godoc examples from forbidigo checks
+      exclude-godoc-examples: true
+
+    # dogsled - blank identifiers
+    dogsled:
+      # Maximum number of blank identifiers
+      max-blank-identifiers: 2
+
+  # Exclusions for linters
+  exclusions:
+    # How to handle generated files
+    generated: strict
+
+    # Show warnings for unused exclusions
+    warn-unused: false
+
+    # Use preset exclusion patterns
+    presets:
+      - comments
+      - common-false-positives
+
+    # Custom exclusion rules
+    rules:
+      # Exclude some linters from running on tests files
+      - path: _test\.go
+        linters:
+          - gocyclo
+          - errcheck
+          - dupl
+          - gosec
+          - goconst
+
+      # Allow fmt.Sprintf in main.go for user-facing messages
+      - path: main\.go
+        text: "use of `fmt.Sprintf`"
+        linters:
+          - forbidigo
+
+# Formatters configuration
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+
+  settings:
+    gofumpt:
+      extra-rules: true
+
+    goimports:
+      local-prefixes: []
+
+# Issues configuration
+issues:
+  # Maximum issues count per linter (0 = unlimited)
+  max-issues-per-linter: 0
+
+  # Maximum count of issues with the same text (0 = unlimited)
+  max-same-issues: 0
+
+  # Show only new issues
+  new: false
+
+  # Fix found issues (if supported by the linter)
+  fix: false
+
+  # Make issues output unique by line
+  uniq-by-line: true
+
+# Severity configuration
+severity:
+  # Set the default severity for issues
+  default: error
+
+  # Override severity for specific linters
+  rules:
+    - severity: warning
+      linters:
+        - misspell
+        - godot
