@@ -46,20 +46,9 @@ builds:
       - CGO_ENABLED=0
       - GOEXPERIMENT=jsonv2
 
+# Disable archives - we want raw binaries in the release
 archives:
-  - id: ynab-export-archives
-    name_template: >-
-      {{ .ProjectName }}_
-      {{- .Version }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
-
-    files:
-      - README.md
-      - LICENSE*
+  - format: binary
 
 checksum:
   name_template: 'checksums.txt'
