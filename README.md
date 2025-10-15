@@ -33,8 +33,10 @@ The binaries are ready to run - no extraction or installation needed!
 
 If you have Go installed (version 1.25 or later), you can build from source:
 
+> **Note:** This project uses Go's experimental `encoding/json/v2` package. You'll need to set the `GOEXPERIMENT` environment variable.
+
 ```bash
-go install github.com/StephenBrown2/ynab-export@latest
+GOEXPERIMENT=jsonv2 go install github.com/StephenBrown2/ynab-export@latest
 ```
 
 Or clone and build:
@@ -42,7 +44,7 @@ Or clone and build:
 ```bash
 git clone https://github.com/StephenBrown2/ynab-export.git
 cd ynab-export
-go build
+GOEXPERIMENT=jsonv2 go build
 ```
 
 ### Using Just (Build Tool)
