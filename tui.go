@@ -8,9 +8,9 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
-	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
 )
 
 const (
@@ -25,6 +25,7 @@ var (
 	successStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("46")).Bold(true)
 	warningStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("214"))
 	validStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("46"))
+	fieldStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("46")) // Green for field names like nushell
 )
 
 type state int
@@ -68,6 +69,38 @@ func formatMonthYear(dateStr string) string {
 	return t.Format("Jan 2006")
 }
 
+// createBudgetTable creates a Nushell-style table from JSON data.budget object.
+func createBudgetTable(jsonData []byte) string {
+	// Extract keys and values in their original order
+	keys, budget, err := extractBudgetKeysAndValues(jsonData)
+	if err != nil {
+		return fmt.Sprintf("Error extracting budget data: %v", err)
+	}
+
+	// Create rows for the table
+	rows := make([][]string, 0, len(keys))
+	for _, key := range keys {
+		value := budget[key]
+		inspected := inspectJSONValue(value)
+		rows = append(rows, []string{key, inspected})
+	}
+
+	// Create lipgloss table with Nushell-style borders
+	t := table.New().
+		Border(lipgloss.RoundedBorder()).
+		StyleFunc(func(_, col int) lipgloss.Style {
+			// First column (field names) in green
+			if col == 0 {
+				return fieldStyle
+			}
+			// Second column (values) in default color
+			return lipgloss.NewStyle()
+		}).
+		Rows(rows...)
+
+	return t.Render()
+}
+
 type model struct {
 	budgetList         list.Model
 	err                error
@@ -77,7 +110,7 @@ type model struct {
 	tokenValidationErr string
 	budgets            []budget
 	tokenInput         textinput.Model
-	jsonViewport       viewport.Model
+	budgetTable        string
 	summary            budgetSummary
 	state              state
 	tokenLengthValid   bool
@@ -260,10 +293,8 @@ func (m model) handleExportDone(msg exportDoneMsg) (model, tea.Cmd) {
 	m.exportPath = msg.path
 	m.summary = msg.summary
 
-	// Initialize viewport for JSON preview
-	// Set dimensions to fit within terminal (80 columns, 20 rows for content area)
-	m.jsonViewport = viewport.New(78, 20)
-	m.jsonViewport.SetContent(string(msg.jsonData))
+	// Create budget structure table
+	m.budgetTable = createBudgetTable(msg.jsonData)
 
 	m.state = stateDone
 	return m, nil
@@ -296,10 +327,7 @@ func (m model) updateInputs(msg tea.Msg) (model, tea.Cmd) {
 		}
 	case stateBudgetSelect:
 		m.budgetList, cmd = m.budgetList.Update(msg)
-	case stateDone:
-		// Handle viewport scrolling in done state
-		m.jsonViewport, cmd = m.jsonViewport.Update(msg)
-	case stateValidatingToken, stateFetchingBudgets, stateExporting, stateError:
+	case stateValidatingToken, stateFetchingBudgets, stateExporting, stateDone, stateError:
 		// No interactive input in these states
 	}
 	return m, cmd
@@ -371,41 +399,12 @@ func (m model) View() string {
 	case stateDone:
 		b.WriteString(successStyle.Render("✓ Export Complete!") + "\n\n")
 		b.WriteString(fmt.Sprintf("Budget: %s\n", m.selectedBudget.Name))
-		b.WriteString(fmt.Sprintf("Saved to: %s\n\n", m.exportPath))
+		b.WriteString(fmt.Sprintf("Saved to: %s\n", m.exportPath))
+		b.WriteString(fmt.Sprintf("File Size: %s\n\n", humanizeFileSize(m.summary.FileSize)))
 
-		// Display budget summary
-		b.WriteString(titleStyle.Render("Budget Summary:") + "\n")
-		b.WriteString(fmt.Sprintf("  Currency:     %s\n", m.summary.Currency))
-
-		// Show accounts with closed count in parentheses
-		if m.summary.ClosedAccountCount > 0 {
-			b.WriteString(fmt.Sprintf("  Accounts:     %d (plus %d closed)\n", m.summary.AccountCount, m.summary.ClosedAccountCount))
-		} else {
-			b.WriteString(fmt.Sprintf("  Accounts:     %d\n", m.summary.AccountCount))
-		}
-
-		// Show categories with hidden and deleted counts in parentheses
-		var categoryDetails []string
-		if m.summary.HiddenCategoryCount > 0 {
-			categoryDetails = append(categoryDetails, fmt.Sprintf("%d hidden", m.summary.HiddenCategoryCount))
-		}
-		if m.summary.DeletedCategoryCount > 0 {
-			categoryDetails = append(categoryDetails, fmt.Sprintf("%d deleted", m.summary.DeletedCategoryCount))
-		}
-		if len(categoryDetails) > 0 {
-			b.WriteString(fmt.Sprintf("  Categories:   %d (plus %s)\n", m.summary.CategoryCount, strings.Join(categoryDetails, ", ")))
-		} else {
-			b.WriteString(fmt.Sprintf("  Categories:   %d\n", m.summary.CategoryCount))
-		}
-
-		b.WriteString(fmt.Sprintf("  Payees:       %d\n", m.summary.PayeeCount))
-		b.WriteString(fmt.Sprintf("  Transactions: %d\n", m.summary.TransactionCount))
-		b.WriteString(fmt.Sprintf("  Date Range:   %s to %s\n", formatMonthYear(m.summary.FirstMonth), formatMonthYear(m.summary.LastMonth)))
-		b.WriteString(fmt.Sprintf("  File Size:    %s\n\n", humanizeFileSize(m.summary.FileSize)))
-
-		// Display JSON preview with viewport
-		b.WriteString(titleStyle.Render("JSON Preview:") + "\n")
-		b.WriteString(m.jsonViewport.View() + "\n\n")
+		// Display budget structure table
+		b.WriteString(titleStyle.Render("Budget Structure (data.budget):") + "\n")
+		b.WriteString(m.budgetTable + "\n\n")
 
 		b.WriteString("You can now import this file into Actual Budget:\n")
 		b.WriteString("  1. Open Actual Budget\n")
@@ -415,7 +414,7 @@ func (m model) View() string {
 		b.WriteString("  5. Select the exported JSON file\n")
 		b.WriteString("  6. Once imported, review your budget and follow cleanup steps at\n")
 		b.WriteString("     https://actualbudget.org/docs/migration/nynab#cleanup\n\n")
-		b.WriteString(helpStyle.Render("Scroll with ↑/↓ or PgUp/PgDn  •  Press Enter or q to quit"))
+		b.WriteString(helpStyle.Render("Press Enter or q to quit"))
 
 	case stateError:
 		b.WriteString(errorStyle.Render("✗ Error") + "\n\n")
