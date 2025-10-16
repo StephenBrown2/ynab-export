@@ -49,9 +49,11 @@ jobs:
           brew install colima
           brew services start colima
 
-      - name: Install fyne-cross
+      - name: Install fyne and fyne-cross
         shell: bash
-        run: go install github.com/fyne-io/fyne-cross@latest
+        run: |
+          go install fyne.io/fyne/v2/cmd/fyne@latest
+          go install github.com/fyne-io/fyne-cross@latest
 
       - name: Build with fyne-cross
         shell: bash
