@@ -155,6 +155,10 @@ release version:
     @git push origin master
     git tag -a {{version}} -m "Release {{version}}"
     git push origin {{version}}
+    @echo
+    @echo "Monitor the release on GitHub:"
+    @echo "https://github.com/StephenBrown2/ynab-export/actions"
+    @echo "https://github.com/StephenBrown2/ynab-export/releases/tag/{{version}}"
 
 # Delete a release tag and recreate it (useful for fixing failed releases)
 [group('release')]

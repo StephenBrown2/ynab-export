@@ -98,11 +98,19 @@ chmod +x ynab-export_*_linux_amd64  # or darwin_amd64/darwin_arm64
 
 **Windows:**
 
-Run from Command Prompt or double-click the `.exe` file:
+Run from Command Prompt, PowerShell, or Windows Terminal:
 
 ```cmd
 ynab-export_0.0.1_windows_amd64.exe
 ```
+
+> **Note:** Do not double-click the `.exe` file - it must be run from a terminal to interact with the application properly.
+
+> **Recommended:** Install [Windows Terminal][windows-terminal] for the best experience. It's free from the Microsoft Store and provides a modern terminal with better colors and font rendering.
+>
+> To install: Open Microsoft Store → Search "Windows Terminal" → Click "Get"
+>
+> Once installed, right-click in your Downloads folder and select "Open in Terminal" to run the executable.
 
 > **Tip:** You can rename the binary to simply `ynab-export` (or `ynab-export.exe` on Windows) for easier use.
 
@@ -365,14 +373,15 @@ If you encounter any issues or have questions:
 
 <!-- Link References -->
 [actual-budget]: https://actualbudget.org/
-[actual-migration]: https://actualbudget.org/docs/migration/nynab
 [actual-migration-cleanup]: https://actualbudget.org/docs/migration/nynab#cleanup
-[releases]: https://github.com/StephenBrown2/ynab-export/releases
+[actual-migration]: https://actualbudget.org/docs/migration/nynab
+[bubbletea]: https://github.com/charmbracelet/bubbletea
+[charm]: https://charm.sh/
 [issues]: https://github.com/StephenBrown2/ynab-export/issues
 [just]: https://github.com/casey/just
-[ynab]: https://www.ynab.com/
+[releases]: https://github.com/StephenBrown2/ynab-export/releases
+[windows-terminal]: https://aka.ms/terminal
+[ynab-api]: https://api.ynab.com/
 [ynab-app]: https://app.ynab.com
 [ynab-developer]: https://app.ynab.com/settings/developer
-[ynab-api]: https://api.ynab.com/
-[charm]: https://charm.sh/
-[bubbletea]: https://github.com/charmbracelet/bubbletea
+[ynab]: https://www.ynab.com/

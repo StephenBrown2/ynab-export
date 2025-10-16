@@ -109,7 +109,11 @@ release:
     ### Usage
 
     1. Download the binary for your operating system
-    2. Run the executable (no installation required)
+    2. **Run in a terminal/command prompt** (no installation required)
+       - **Windows**: Right-click in a folder and select "Open in Terminal" (Windows 11) or "Open PowerShell window here", then run the `.exe` file
+       - **macOS/Linux**: Open Terminal, navigate to the download folder, and run the executable
     3. Follow the on-screen prompts
+
+    > **Note for Windows users:** Do not double-click the `.exe` file - it must be run from a command prompt to interact properly.
 
     For more information, see the [README](https://github.com/StephenBrown2/ynab-export/blob/main/README.md).
