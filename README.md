@@ -7,15 +7,17 @@ This tool simplifies the export process described in the
 [Actual Budget migration guide][actual-migration] by providing an
 interactive terminal interface that guides you through each step.
 
-## Features
+## Quick Start
 
-- 🎯 **Beginner-friendly**: Interactive prompts guide you through the entire process
-- 🖥️ **Terminal UI**: Terminal interface using Bubble Tea
-- 🔒 **Secure**: Your API token is masked as you type and never stored
-- 🚀 **Fast**: Direct API integration with YNAB
-- 💾 **Automatic saving**: Exports are automatically saved to your Downloads folder
-- 🌐 **Cross-platform**: Works on Windows, macOS, and Linux
-- 📦 **Zero dependencies**: Single binary with no installation required
+1. **[Download](#installation)** the binary for your platform
+2. **[Get your YNAB API token](#step-1-get-your-ynab-api-token)** from Developer Settings
+3. **[Run the tool](#step-2-run-the-tool)** from your terminal
+4. **[Follow the prompts](#step-3-follow-the-prompts)** to select and export your budget
+5. **[Import into Actual Budget](#step-4-import-into-actual-budget)** using the exported file
+
+🔒 Secure • 🚀 Fast • 🌐 Cross-platform • 📦 No installation required
+
+---
 
 ## Installation
 
