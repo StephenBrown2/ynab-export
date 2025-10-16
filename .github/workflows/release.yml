@@ -24,11 +24,6 @@ jobs:
           go-version-file: 'go.mod'
           check-latest: true
 
-      - name: Install Linux dependencies for Gio
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev libgl1-mesa-dev libxxf86vm-dev
-
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
