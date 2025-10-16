@@ -45,10 +45,11 @@ jobs:
       - name: Build with fyne-cross
         run: |
           export GOEXPERIMENT=jsonv2
+          export GOTOOLCHAIN=auto
           ~/go/bin/fyne-cross ${{ matrix.os }} \
             -app-id com.stephenbrown2.ynab-export \
             -arch ${{ matrix.arch }} \
-            -release
+            --pull
 
       - name: Prepare binary for GoReleaser
         run: |
