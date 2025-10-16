@@ -1,8 +1,11 @@
 # YNAB Export Tool
 
-A simple, beginner-friendly tool to export your YNAB (You Need A Budget) budget data for import into [Actual Budget][actual-budget].
+A simple, beginner-friendly tool to export your YNAB (You Need A Budget)
+budget data for import into [Actual Budget][actual-budget].
 
-This tool simplifies the export process described in the [Actual Budget migration guide][actual-migration] by providing an interactive terminal interface that guides you through each step.
+This tool simplifies the export process described in the
+[Actual Budget migration guide][actual-migration] by providing an
+interactive terminal interface that guides you through each step.
 
 ## Features
 
@@ -30,11 +33,15 @@ Choose the appropriate binary:
 
 The binaries are ready to run - no extraction or installation needed!
 
+<details>
+<summary><b>Advanced: Build from Source</b></summary>
+
 ### Build from Source
 
 If you have Go installed (version 1.25 or later), you can build from source:
 
-> **Note:** This project uses Go's experimental `encoding/json/v2` package. You'll need to set the `GOEXPERIMENT` environment variable.
+> **Note:** This project uses Go's experimental `encoding/json/v2` package.
+> You'll need to set the `GOEXPERIMENT` environment variable.
 
 ```bash
 GOEXPERIMENT=jsonv2 go install github.com/StephenBrown2/ynab-export@latest
@@ -65,6 +72,8 @@ just run
 # See all available commands
 just
 ```
+
+</details>
 
 ## Usage
 
@@ -104,13 +113,17 @@ Run from Command Prompt, PowerShell, or Windows Terminal:
 ynab-export_0.0.1_windows_amd64.exe
 ```
 
-> **Note:** Do not double-click the `.exe` file - it must be run from a terminal to interact with the application properly.
+> **Note:** Do not double-click the `.exe` file - it must be run from
+> a terminal to interact with the application properly.
 
-> **Recommended:** Install [Windows Terminal][windows-terminal] for the best experience. It's free from the Microsoft Store and provides a modern terminal with better colors and font rendering.
+> **Recommended:** Install [Windows Terminal][windows-terminal] for the
+> best experience. It's free from the Microsoft Store and provides a
+> modern terminal with better colors and font rendering.
 >
 > To install: Open Microsoft Store → Search "Windows Terminal" → Click "Get"
 >
-> Once installed, right-click in your Downloads folder and select "Open in Terminal" to run the executable.
+> Once installed, right-click in your Downloads folder and select
+> "Open in Terminal" to run the executable.
 
 > **Tip:** You can rename the binary to simply `ynab-export` (or `ynab-export.exe` on Windows) for easier use.
 
@@ -124,7 +137,8 @@ The tool will guide you through:
 3. **Wait for export** - the tool downloads your budget data
 4. **Done!** Your budget is saved to `~/Downloads/ynab-export-budget-name-YYYYMMDD-HHMMSS.json`
 
-#### Using Environment Variable for Token (Optional)
+<details>
+<summary><b>Advanced: Using Environment Variable for Token</b></summary>
 
 To skip entering your token each time, set the `YNAB_API_TOKEN` environment variable:
 
@@ -143,6 +157,8 @@ ynab-export.exe
 ```
 
 The tool will automatically validate the token from the environment variable and skip the token entry screen if valid.
+
+</details>
 
 ### Step 4: Import into Actual Budget
 
@@ -295,53 +311,9 @@ chmod +x ynab-export_*_darwin_*
 
 Or right-click the file, select "Open", and click "Open" in the security dialog.
 
-## Development
-
-### Prerequisites
-
-- Go 1.25 or later
-- (Optional) [Just][just] for build automation
-- **Windows users:** Git for Windows is required for build automation (Just uses Git Bash)
-
-### Technical Details
-
-- **TUI Framework**: [Bubble Tea][bubbletea] - Elegant terminal user interface
-- **JSON Handling**: Go's experimental `encoding/json/v2` for improved performance
-
-### Building
-
-```bash
-# Install dependencies
-go mod download
-
-# Build
-go build -o ynab-export
-
-# Run tests (when added)
-go test -v ./...
-
-# Cross-compile for all platforms
-just build-all
-```
-
-### Project Structure
-
-```text
-ynab-export/
-├── main.go              # Main application code
-├── go.mod              # Go module definition
-├── go.sum              # Go module checksums
-├── Justfile            # Build automation recipes
-├── .goreleaser.yml     # GoReleaser configuration
-├── .github/
-│   └── workflows/
-│       └── release.yml # GitHub Actions release workflow
-└── README.md           # This file
-```
-
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
@@ -369,13 +341,13 @@ If you encounter any issues or have questions:
 
 ---
 
-**Note**: This tool is not affiliated with YNAB or Actual Budget. It's a community project to help users migrate their data.
+**Note**: This tool is not affiliated with YNAB or Actual Budget.
+It's a community project to help users migrate their data.
 
 <!-- Link References -->
 [actual-budget]: https://actualbudget.org/
 [actual-migration-cleanup]: https://actualbudget.org/docs/migration/nynab#cleanup
 [actual-migration]: https://actualbudget.org/docs/migration/nynab
-[bubbletea]: https://github.com/charmbracelet/bubbletea
 [charm]: https://charm.sh/
 [issues]: https://github.com/StephenBrown2/ynab-export/issues
 [just]: https://github.com/casey/just
