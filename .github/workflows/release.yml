@@ -11,20 +11,22 @@ permissions:
 
 jobs:
   build:
-    name: Build ${{ matrix.os }}-${{ matrix.arch }}
-    runs-on: ubuntu-latest
+    name: Build ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
         include:
-          - os: linux
+          - name: linux-amd64
+            runner: ubuntu-latest
+            os: linux
             arch: amd64
-          - os: linux
+          - name: darwin-arm64
+            runner: macos-latest  # Apple Silicon (M1/M2)
+            os: darwin
             arch: arm64
-          - os: darwin
-            arch: amd64
-          - os: darwin
-            arch: arm64
-          - os: windows
+          - name: windows-amd64
+            runner: windows-latest
+            os: windows
             arch: amd64
 
     steps:
@@ -39,31 +41,27 @@ jobs:
           go-version-file: 'go.mod'
           check-latest: true
 
-      - name: Install fyne-cross
-        run: go install github.com/fyne-io/fyne-cross@latest
-
-      - name: Build with fyne-cross
+      - name: Build binary
+        shell: bash
         run: |
           export GOEXPERIMENT=jsonv2
           export GOTOOLCHAIN=auto
-          ~/go/bin/fyne-cross ${{ matrix.os }} \
-            -app-id com.stephenbrown2.ynab-export \
-            -arch ${{ matrix.arch }} \
-            --pull
-
-      - name: Prepare binary for GoReleaser
-        run: |
           mkdir -p dist
+
+          # Set output binary name
           if [ "${{ matrix.os }}" = "windows" ]; then
-            cp fyne-cross/bin/${{ matrix.os }}-${{ matrix.arch }}/ynab-export.exe dist/ynab-export_${{ matrix.os }}_${{ matrix.arch }}.exe
+            OUTPUT="dist/ynab-export_${{ matrix.os }}_${{ matrix.arch }}.exe"
           else
-            cp fyne-cross/bin/${{ matrix.os }}-${{ matrix.arch }}/ynab-export dist/ynab-export_${{ matrix.os }}_${{ matrix.arch }}
+            OUTPUT="dist/ynab-export_${{ matrix.os }}_${{ matrix.arch }}"
           fi
+
+          # Build with appropriate GOOS/GOARCH
+          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o "$OUTPUT" .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: binary-${{ matrix.os }}-${{ matrix.arch }}
+          name: binary-${{ matrix.name }}
           path: dist/*
 
   release:
