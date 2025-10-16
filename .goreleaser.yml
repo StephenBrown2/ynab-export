@@ -1,41 +1,49 @@
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
 # GoReleaser configuration for ynab-export
 
+version: 2
+
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    # You may remove this if you don't need to generate anything before building.
+    - go mod download
+
 builds:
   - id: ynab-export
-    # Use prebuilt binaries from fyne-cross
-    builder: prebuilt
+    main: .
+    binary: ynab-export
 
-    # Must specify all targets when using prebuilt
+    # Build for multiple platforms
     goos:
       - linux
       - darwin
       - windows
+
     goarch:
       - amd64
       - arm64
 
-    # Skip invalid combinations
-    ignore:
-      - goos: windows
-        goarch: arm64
+    # Build flags
+    flags:
+      - -trimpath
 
-    # Prebuilt configuration
-    prebuilt:
-      # Path template to the prebuilt binaries (fyne-cross output)
-      path: dist/ynab-export_{{ .Os }}_{{ .Arch }}{{ .Ext }}
+    # Linker flags for smaller binaries
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
 
-    # Binary name in the release
-    binary: ynab-export
+    # Environment variables for build
+    env:
+      - CGO_ENABLED=0
+      - GOEXPERIMENT=jsonv2
 
-# Create archives with the prebuilt binaries
+# Disable archives - we want raw binaries in the release
 archives:
-  - format: binary
-    name_template: >-
-      {{ .ProjectName }}_
-      {{- .Version }}_
-      {{- .Os }}_
-      {{- .Arch }}
+  - formats: binary
 
 checksum:
   name_template: 'checksums.txt'

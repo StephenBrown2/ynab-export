@@ -10,10 +10,8 @@ permissions:
   packages: write
 
 jobs:
-  build:
-    name: Build all platforms
+  goreleaser:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,58 +24,10 @@ jobs:
           go-version-file: 'go.mod'
           check-latest: true
 
-      - name: Build for all platforms
-        shell: bash
+      - name: Install Linux dependencies for Gio
         run: |
-          export GOEXPERIMENT=jsonv2
-          export GOTOOLCHAIN=auto
-          mkdir -p dist
-          
-          # Build for Linux amd64
-          GOOS=linux GOARCH=amd64 go build -o dist/ynab-export_linux_amd64 .
-          
-          # Build for Linux arm64
-          GOOS=linux GOARCH=arm64 go build -o dist/ynab-export_linux_arm64 .
-          
-          # Build for macOS amd64 (Intel)
-          GOOS=darwin GOARCH=amd64 go build -o dist/ynab-export_darwin_amd64 .
-          
-          # Build for macOS arm64 (Apple Silicon)
-          GOOS=darwin GOARCH=arm64 go build -o dist/ynab-export_darwin_arm64 .
-          
-          # Build for Windows amd64
-          GOOS=windows GOARCH=amd64 go build -o dist/ynab-export_windows_amd64.exe .
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: binaries
-          path: dist/*
-
-  release:
-    name: Create Release with GoReleaser
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: 'go.mod'
-          check-latest: true
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: binaries
-          path: dist
-
-      - name: Display structure
-        run: ls -lah dist/
+          sudo apt-get update
+          sudo apt-get install -y libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev libgl1-mesa-dev libxxf86vm-dev
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
@@ -87,3 +37,13 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GOEXPERIMENT: jsonv2
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+            dist/checksums.txt
