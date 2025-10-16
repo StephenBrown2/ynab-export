@@ -155,3 +155,12 @@ release version:
     @git push origin master
     git tag -a {{version}} -m "Release {{version}}"
     git push origin {{version}}
+
+# Delete a release tag and recreate it (useful for fixing failed releases)
+[group('release')]
+redo-release version:
+    @echo "Deleting tag {{version}} locally and remotely..."
+    -git tag -d {{version}}
+    -git push origin :refs/tags/{{version}}
+    @echo "Recreating release {{version}}"
+    @just release {{version}}
