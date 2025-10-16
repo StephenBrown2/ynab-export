@@ -1,26 +1,16 @@
-# .goreleaser.yml
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
 # GoReleaser configuration for ynab-export
-
-version: 2
-
-before:
-  hooks:
-    # You may remove this if you don't use go modules.
-    - go mod tidy
-    # You may remove this if you don't need to generate anything before building.
-    - go mod download
 
 builds:
   - id: ynab-export
-    main: .
-    binary: ynab-export
+    # Use prebuilt binaries from fyne-cross
+    builder: prebuilt
 
-    # Build for multiple platforms
+    # Must specify all targets when using prebuilt
     goos:
       - linux
       - darwin
       - windows
-
     goarch:
       - amd64
       - arm64
@@ -30,63 +20,22 @@ builds:
       - goos: windows
         goarch: arm64
 
-    # Build flags
-    flags:
-      - -trimpath
+    # Prebuilt configuration
+    prebuilt:
+      # Path template to the prebuilt binaries (fyne-cross output)
+      path: dist/ynab-export_{{ .Os }}_{{ .Arch }}{{ .Ext }}
 
-    # Linker flags for smaller binaries
-    ldflags:
-      - -s -w
-      - -X main.version={{.Version}}
-      - -X main.commit={{.Commit}}
-      - -X main.date={{.Date}}
+    # Binary name in the release
+    binary: ynab-export
 
-    # Environment variables for build
-    env:
-      - CGO_ENABLED=1
-      - GOEXPERIMENT=jsonv2
-
-    # Override environment for each target to use Zig
-    overrides:
-      - goos: linux
-        goarch: amd64
-        env:
-          - CGO_ENABLED=1
-          - GOEXPERIMENT=jsonv2
-          - CC=zig cc -target x86_64-linux-gnu
-          - CXX=zig c++ -target x86_64-linux-gnu
-      - goos: linux
-        goarch: arm64
-        env:
-          - CGO_ENABLED=1
-          - GOEXPERIMENT=jsonv2
-          - CC=zig cc -target aarch64-linux-gnu
-          - CXX=zig c++ -target aarch64-linux-gnu
-      - goos: darwin
-        goarch: amd64
-        env:
-          - CGO_ENABLED=1
-          - GOEXPERIMENT=jsonv2
-          - CC=zig cc -target x86_64-macos
-          - CXX=zig c++ -target x86_64-macos
-      - goos: darwin
-        goarch: arm64
-        env:
-          - CGO_ENABLED=1
-          - GOEXPERIMENT=jsonv2
-          - CC=zig cc -target aarch64-macos
-          - CXX=zig c++ -target aarch64-macos
-      - goos: windows
-        goarch: amd64
-        env:
-          - CGO_ENABLED=1
-          - GOEXPERIMENT=jsonv2
-          - CC=zig cc -target x86_64-windows-gnu
-          - CXX=zig c++ -target x86_64-windows-gnu
-
-# Disable archives - we want raw binaries in the release
+# Create archives with the prebuilt binaries
 archives:
-  - formats: binary
+  - format: binary
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- .Arch }}
 
 checksum:
   name_template: 'checksums.txt'

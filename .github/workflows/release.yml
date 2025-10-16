@@ -10,7 +10,59 @@ permissions:
   packages: write
 
 jobs:
-  goreleaser:
+  build:
+    name: Build ${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: linux
+            arch: amd64
+          - os: linux
+            arch: arm64
+          - os: darwin
+            arch: amd64
+          - os: darwin
+            arch: arm64
+          - os: windows
+            arch: amd64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build with fyne-cross
+        run: |
+          docker run --rm \
+            -v "$(pwd):/app" \
+            -w /app \
+            -e GOEXPERIMENT=jsonv2 \
+            fyneio/fyne-cross:latest \
+            -app-id com.stephenbrown2.ynab-export \
+            -arch ${{ matrix.arch }} \
+            -release \
+            ${{ matrix.os }}
+
+      - name: Prepare binary for GoReleaser
+        run: |
+          mkdir -p dist
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            cp fyne-cross/bin/${{ matrix.os }}-${{ matrix.arch }}/ynab-export.exe dist/ynab-export_${{ matrix.os }}_${{ matrix.arch }}.exe
+          else
+            cp fyne-cross/bin/${{ matrix.os }}-${{ matrix.arch }}/ynab-export dist/ynab-export_${{ matrix.os }}_${{ matrix.arch }}
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.os }}-${{ matrix.arch }}
+          path: dist/*
+
+  release:
+    name: Create Release with GoReleaser
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -24,13 +76,15 @@ jobs:
           go-version-file: 'go.mod'
           check-latest: true
 
-      - name: Set up Zig
-        uses: goto-bus-stop/setup-zig@v2
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: binary-*
+          merge-multiple: true
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev xorg-dev
+      - name: Display structure
+        run: ls -lah dist/
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
@@ -40,13 +94,3 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GOEXPERIMENT: jsonv2
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-artifacts
-          path: |
-            dist/*.tar.gz
-            dist/*.zip
-            dist/checksums.txt
