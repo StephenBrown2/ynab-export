@@ -8,6 +8,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -76,6 +77,7 @@ type model struct {
 	tokenValidationErr string
 	budgets            []budget
 	tokenInput         textinput.Model
+	jsonViewport       viewport.Model
 	summary            budgetSummary
 	state              state
 	tokenLengthValid   bool
@@ -257,6 +259,12 @@ func (m model) handleExportDone(msg exportDoneMsg) (model, tea.Cmd) {
 
 	m.exportPath = msg.path
 	m.summary = msg.summary
+
+	// Initialize viewport for JSON preview
+	// Set dimensions to fit within terminal (80 columns, 20 rows for content area)
+	m.jsonViewport = viewport.New(78, 20)
+	m.jsonViewport.SetContent(string(msg.jsonData))
+
 	m.state = stateDone
 	return m, nil
 }
@@ -288,7 +296,10 @@ func (m model) updateInputs(msg tea.Msg) (model, tea.Cmd) {
 		}
 	case stateBudgetSelect:
 		m.budgetList, cmd = m.budgetList.Update(msg)
-	case stateValidatingToken, stateFetchingBudgets, stateExporting, stateDone, stateError:
+	case stateDone:
+		// Handle viewport scrolling in done state
+		m.jsonViewport, cmd = m.jsonViewport.Update(msg)
+	case stateValidatingToken, stateFetchingBudgets, stateExporting, stateError:
 		// No interactive input in these states
 	}
 	return m, cmd
@@ -392,6 +403,10 @@ func (m model) View() string {
 		b.WriteString(fmt.Sprintf("  Date Range:   %s to %s\n", formatMonthYear(m.summary.FirstMonth), formatMonthYear(m.summary.LastMonth)))
 		b.WriteString(fmt.Sprintf("  File Size:    %s\n\n", humanizeFileSize(m.summary.FileSize)))
 
+		// Display JSON preview with viewport
+		b.WriteString(titleStyle.Render("JSON Preview:") + "\n")
+		b.WriteString(m.jsonViewport.View() + "\n\n")
+
 		b.WriteString("You can now import this file into Actual Budget:\n")
 		b.WriteString("  1. Open Actual Budget\n")
 		b.WriteString("  2. If a budget is already open, select the dropdown menu and 'Close File'\n")
@@ -400,7 +415,7 @@ func (m model) View() string {
 		b.WriteString("  5. Select the exported JSON file\n")
 		b.WriteString("  6. Once imported, review your budget and follow cleanup steps at\n")
 		b.WriteString("     https://actualbudget.org/docs/migration/nynab#cleanup\n\n")
-		b.WriteString(helpStyle.Render("Press Enter or q to quit"))
+		b.WriteString(helpStyle.Render("Scroll with ↑/↓ or PgUp/PgDn  •  Press Enter or q to quit"))
 
 	case stateError:
 		b.WriteString(errorStyle.Render("✗ Error") + "\n\n")
