@@ -41,22 +41,37 @@ jobs:
           go-version-file: 'go.mod'
           check-latest: true
 
-      - name: Build binary
+      - name: Install fyne-cross
+        shell: bash
+        run: go install github.com/fyne-io/fyne-cross@latest
+
+      - name: Build with fyne-cross
         shell: bash
         run: |
           export GOEXPERIMENT=jsonv2
           export GOTOOLCHAIN=auto
-          mkdir -p dist
 
-          # Set output binary name
+          # Determine path to fyne-cross based on OS
           if [ "${{ matrix.os }}" = "windows" ]; then
-            OUTPUT="dist/ynab-export_${{ matrix.os }}_${{ matrix.arch }}.exe"
+            FYNE_CROSS="$HOME/go/bin/fyne-cross.exe"
           else
-            OUTPUT="dist/ynab-export_${{ matrix.os }}_${{ matrix.arch }}"
+            FYNE_CROSS="$HOME/go/bin/fyne-cross"
           fi
 
-          # Build with appropriate GOOS/GOARCH
-          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o "$OUTPUT" .
+          # Build using fyne-cross (uses Docker with all dependencies)
+          "$FYNE_CROSS" ${{ matrix.os }} \
+            -app-id com.stephenbrown2.ynab-export \
+            -arch ${{ matrix.arch }}
+
+      - name: Prepare binary for GoReleaser
+        shell: bash
+        run: |
+          mkdir -p dist
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            cp fyne-cross/bin/${{ matrix.os }}-${{ matrix.arch }}/ynab-export.exe dist/ynab-export_${{ matrix.os }}_${{ matrix.arch }}.exe
+          else
+            cp fyne-cross/bin/${{ matrix.os }}-${{ matrix.arch }}/ynab-export dist/ynab-export_${{ matrix.os }}_${{ matrix.arch }}
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
