@@ -33,17 +33,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          check-latest: true
+
+      - name: Install fyne-cross
+        run: go install github.com/fyne-io/fyne-cross@latest
+
       - name: Build with fyne-cross
         run: |
-          docker run --rm \
-            -v "$(pwd):/app" \
-            -w /app \
-            -e GOEXPERIMENT=jsonv2 \
-            fyneio/fyne-cross:latest \
+          export GOEXPERIMENT=jsonv2
+          ~/go/bin/fyne-cross ${{ matrix.os }} \
             -app-id com.stephenbrown2.ynab-export \
             -arch ${{ matrix.arch }} \
-            -release \
-            ${{ matrix.os }}
+            -release
 
       - name: Prepare binary for GoReleaser
         run: |
