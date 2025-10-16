@@ -7,8 +7,8 @@ This tool simplifies the export process described in the [Actual Budget migratio
 ## Features
 
 - 🎯 **Beginner-friendly**: Interactive prompts guide you through the entire process
-- �️ **Dual UI modes**: Graphical interface (GUI) or Terminal interface (TUI)
-- �🔒 **Secure**: Your API token is masked as you type and never stored
+- 🖥️ **Terminal UI**: Terminal interface using Bubble Tea
+- 🔒 **Secure**: Your API token is masked as you type and never stored
 - 🚀 **Fast**: Direct API integration with YNAB
 - 💾 **Automatic saving**: Exports are automatically saved to your Downloads folder
 - 🌐 **Cross-platform**: Works on Windows, macOS, and Linux
@@ -92,42 +92,19 @@ Simply run the downloaded binary:
 # Make it executable (first time only)
 chmod +x ynab-export_*_linux_amd64  # or darwin_amd64/darwin_arm64
 
-# Run it (GUI launches automatically when double-clicked)
+# Run it
 ./ynab-export_*_linux_amd64
-
-# Or force terminal mode:
-./ynab-export_*_linux_amd64 --tui
 ```
 
 **Windows:**
 
-Double-click the `.exe` file for GUI mode, or run from Command Prompt:
+Run from Command Prompt or double-click the `.exe` file:
 
 ```cmd
 ynab-export_0.0.1_windows_amd64.exe
-
-# Or force terminal mode:
-ynab-export_0.0.1_windows_amd64.exe --tui
 ```
 
 > **Tip:** You can rename the binary to simply `ynab-export` (or `ynab-export.exe` on Windows) for easier use.
-
-#### UI Mode Selection
-
-The tool automatically chooses the appropriate interface:
-
-- **GUI mode** (default): Launches when you double-click the executable or run it outside a terminal
-- **TUI mode** (terminal): Launches automatically when run from a terminal/console
-
-You can explicitly select a mode with command-line flags:
-
-```bash
-# Force graphical interface
-./ynab-export --gui
-
-# Force terminal interface
-./ynab-export --tui
-```
 
 ### Step 3: Follow the Prompts
 
@@ -320,16 +297,8 @@ Or right-click the file, select "Open", and click "Open" in the security dialog.
 
 ### Technical Details
 
-- **GUI Framework**: [Gio UI][gio] - Pure Go, no CGO dependencies for easy cross-compilation
 - **TUI Framework**: [Bubble Tea][bubbletea] - Elegant terminal user interface
 - **JSON Handling**: Go's experimental `encoding/json/v2` for improved performance
-
-The GUI uses Gio UI, which provides excellent cross-platform support without requiring CGO. This means:
-
-- Simple cross-compilation (just set GOOS/GOARCH)
-- No platform-specific C dependencies
-- Smaller binary sizes
-- Easier to build and distribute
 
 ### Building
 
@@ -375,7 +344,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [YNAB][ynab] for their excellent budgeting software and API
 - [Actual Budget][actual-budget] for the open-source alternative
 - [Charm Bracelet][charm] for the beautiful TUI libraries (Bubble Tea)
-- [Gio UI][gio] for the pure Go GUI framework
 
 ## Related Links
 
@@ -407,5 +375,4 @@ If you encounter any issues or have questions:
 [ynab-developer]: https://app.ynab.com/settings/developer
 [ynab-api]: https://api.ynab.com/
 [charm]: https://charm.sh/
-[gio]: https://gioui.org/
 [bubbletea]: https://github.com/charmbracelet/bubbletea
