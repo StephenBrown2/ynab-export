@@ -3,17 +3,24 @@ package main
 import (
 	"errors"
 	"fmt"
+	"image"
+	"image/color"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
-	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/theme"
-	"fyne.io/fyne/v2/widget"
+	"gioui.org/app"
+	"gioui.org/font"
+	"gioui.org/font/gofont"
+	"gioui.org/io/key"
+	"gioui.org/layout"
+	"gioui.org/op"
+	"gioui.org/op/paint"
+	"gioui.org/text"
+	"gioui.org/unit"
+	"gioui.org/widget"
+	"gioui.org/widget/material"
 )
 
 type guiState int
@@ -23,387 +30,562 @@ const (
 	guiStateBudgetSelect
 	guiStateExporting
 	guiStateDone
+	guiStateError
 )
 
 type guiApp struct {
-	app            fyne.App
-	window         fyne.Window
-	selectedBudget budget
-	token          string
-	exportPath     string
-	budgets        []budget
-	jsonData       []byte
-	summary        budgetSummary
-	state          guiState
+	window           *app.Window
+	theme            *material.Theme
+	exportBtn        widget.Clickable
+	backBtn          widget.Clickable
+	errorOkBtn       widget.Clickable
+	exportAnotherBtn widget.Clickable
+	closeBtn         widget.Clickable
+	continueBtn      widget.Clickable
+	budgetClickables []widget.Clickable
+	selectedBudget   budget
+	token            string
+	errorMsg         string
+	exportPath       string
+	tokenEditor      widget.Editor
+	jsonData         []byte
+	budgets          []budget
+	budgetList       widget.List
+	summary          budgetSummary
+	selectedIndex    int
+	state            guiState
 }
 
 func runGUI() {
-	a := app.NewWithID("com.stephenbrown2.ynab-export")
-	a.Settings().SetTheme(theme.DefaultTheme())
-
-	w := a.NewWindow("YNAB Export Tool")
-	w.Resize(fyne.NewSize(600, 500))
-	w.CenterOnScreen()
-
-	gui := &guiApp{
-		app:    a,
-		window: w,
-		state:  guiStateToken,
-	}
-
-	// Check for token in environment variable
-	if token := os.Getenv("YNAB_API_TOKEN"); token != "" {
-		gui.token = token
-		// Validate token
-		if err := validateToken(token); err == nil {
-			// Token is valid, fetch budgets
-			go gui.fetchBudgetsAsync()
-		} else {
-			// Token invalid, show token entry
-			gui.showTokenEntry()
-		}
-	} else {
-		gui.showTokenEntry()
-	}
-
-	w.ShowAndRun()
-}
-
-func (g *guiApp) showTokenEntry() {
-	g.state = guiStateToken
-
-	title := widget.NewLabelWithStyle("YNAB Budget Exporter", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
-
-	intro := widget.NewLabel("This tool will help you export your YNAB budget for import into Actual Budget.")
-	intro.Wrapping = fyne.TextWrapWord
-
-	instructions := widget.NewLabel(`To get your API token:
-1. Sign in to the YNAB web app
-2. Go to Account Settings → Developer Settings
-3. Under 'Personal Access Tokens', click 'New'
-4. Enter your password and click 'Generate'
-5. Copy the FULL token (not the obfuscated version)`)
-	instructions.Wrapping = fyne.TextWrapWord
-
-	tokenEntry := widget.NewPasswordEntry()
-	tokenEntry.SetPlaceHolder("Enter your YNAB API token...")
-	tokenEntry.OnChanged = func(_ string) {
-		// Token validation feedback could go here
-	}
-
-	var progressDialog dialog.Dialog
-
-	continueBtn := widget.NewButton("Continue", func() {
-		token := strings.TrimSpace(tokenEntry.Text)
-		if token == "" {
-			dialog.ShowError(errors.New("please enter your API token"), g.window)
-			return
-		}
-
-		if len(token) != ynabTokenLength {
-			dialog.ShowError(fmt.Errorf("token should be %d characters long", ynabTokenLength), g.window)
-			return
-		}
-
-		g.token = token
-
-		// Show progress dialog
-		progressBar := widget.NewProgressBarInfinite()
-		progressContent := container.NewVBox(
-			widget.NewLabel("Validating token..."),
-			progressBar,
-		)
-		progressDialog = dialog.NewCustomWithoutButtons("Please wait", progressContent, g.window)
-		progressDialog.Show()
-
-		// Validate token and fetch budgets in background
-		go func() {
-			if err := validateToken(token); err != nil {
-				progressDialog.Hide()
-				dialog.ShowError(fmt.Errorf("token validation failed: %w", err), g.window)
-				return
-			}
-
-			g.fetchBudgetsAsync()
-			progressDialog.Hide()
-		}()
-	})
-	continueBtn.Importance = widget.HighImportance
-
-	content := container.NewVBox(
-		layout.NewSpacer(),
-		container.NewCenter(title),
-		layout.NewSpacer(),
-		intro,
-		widget.NewSeparator(),
-		instructions,
-		layout.NewSpacer(),
-		tokenEntry,
-		layout.NewSpacer(),
-		container.NewCenter(continueBtn),
-		layout.NewSpacer(),
-	)
-
-	g.window.SetContent(content)
-}
-
-func (g *guiApp) fetchBudgetsAsync() {
-	// Show loading state
-	g.app.SendNotification(&fyne.Notification{
-		Title:   "Fetching budgets",
-		Content: "Retrieving your budgets from YNAB...",
-	})
-
-	// Fetch budgets in background
 	go func() {
-		budgets, err := fetchBudgetsSync(g.token)
+		w := &app.Window{}
+		w.Option(app.Title("YNAB Export Tool"))
+		w.Option(app.Size(unit.Dp(360), unit.Dp(520)))
 
-		// Update UI in main thread
-		fyne.Do(func() {
-			if err != nil {
-				dialog.ShowError(fmt.Errorf("failed to fetch budgets: %w", err), g.window)
-				return
+		gui := &guiApp{
+			window:        w,
+			theme:         material.NewTheme(),
+			state:         guiStateToken,
+			selectedIndex: -1,
+		}
+
+		// Load fonts
+		gui.theme.Shaper = text.NewShaper(text.WithCollection(gofont.Collection()))
+
+		// Configure token editor
+		gui.tokenEditor.SingleLine = true
+		gui.tokenEditor.Submit = true
+		gui.tokenEditor.Mask = '•' // Password mask
+
+		// Configure budget list
+		gui.budgetList.Axis = layout.Vertical
+
+		// Check for token in environment
+		if token := os.Getenv("YNAB_API_TOKEN"); token != "" {
+			gui.token = token
+			gui.tokenEditor.SetText(token)
+			gui.state = guiStateExporting
+			gui.window.Invalidate()
+			if err := validateToken(token); err == nil {
+				go gui.fetchBudgets()
+			} else {
+				// Token invalid, show token entry with error
+				gui.showError(fmt.Errorf("environment token is invalid: %w", err))
+			}
+		} else {
+			// No token in environment, show token entry screen
+			gui.state = guiStateToken
+		}
+
+		if err := gui.run(); err != nil {
+			fmt.Fprintf(os.Stderr, "GUI error: %v\n", err)
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}()
+	app.Main()
+}
+
+func (g *guiApp) run() error {
+	var ops op.Ops
+
+	for {
+		switch e := g.window.Event().(type) {
+		case app.DestroyEvent:
+			return e.Err
+
+		case app.FrameEvent:
+			gtx := app.NewContext(&ops, e)
+
+			// Handle global key events
+			for {
+				ev, ok := gtx.Event(key.Filter{Name: key.NameEscape})
+				if !ok {
+					break
+				}
+				if ev, ok := ev.(key.Event); ok && ev.State == key.Press {
+					if g.state == guiStateError {
+						g.state = guiStateToken
+						g.window.Invalidate()
+					}
+				}
 			}
 
-			g.budgets = budgets
-			g.showBudgetSelection()
-		})
+			// Draw current state
+			g.layout(gtx)
+
+			e.Frame(gtx.Ops)
+		}
+	}
+}
+
+func (g *guiApp) layout(gtx layout.Context) layout.Dimensions {
+	// Fill background with white
+	paint.Fill(gtx.Ops, color.NRGBA{R: 255, G: 255, B: 255, A: 255})
+
+	switch g.state {
+	case guiStateToken:
+		return g.layoutTokenEntry(gtx)
+	case guiStateBudgetSelect:
+		return g.layoutBudgetSelection(gtx)
+	case guiStateExporting:
+		return g.layoutExporting(gtx)
+	case guiStateDone:
+		return g.layoutComplete(gtx)
+	case guiStateError:
+		return g.layoutError(gtx)
+	default:
+		return layout.Dimensions{}
+	}
+}
+
+func (g *guiApp) layoutTokenEntry(gtx layout.Context) layout.Dimensions {
+	inset := layout.Inset{Top: unit.Dp(20), Bottom: unit.Dp(20), Left: unit.Dp(20), Right: unit.Dp(20)}
+
+	return inset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		return layout.Flex{Axis: layout.Vertical, Spacing: layout.SpaceAround}.Layout(gtx,
+			layout.Flexed(0.1, func(gtx layout.Context) layout.Dimensions {
+				return layout.Spacer{}.Layout(gtx)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				title := material.H4(g.theme, "YNAB Budget Exporter")
+				title.Alignment = text.Middle
+				title.Color = color.NRGBA{R: 0, G: 0, B: 0, A: 255}
+				return layout.Center.Layout(gtx, title.Layout)
+			}),
+			layout.Flexed(0.1, func(gtx layout.Context) layout.Dimensions {
+				return layout.Spacer{}.Layout(gtx)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				body := material.Body1(g.theme, "Export your YNAB budget for\nimport into Actual Budget.")
+				return body.Layout(gtx)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				return layout.Inset{Top: unit.Dp(10)}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+					return g.drawSeparator(gtx)
+				})
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				instructions := `To get your API token:
+1. Sign in to YNAB web app
+2. Go to Account Settings
+3. Then Developer Settings
+4. Click 'New' under Personal
+   Access Tokens
+5. Enter password, then Generate
+6. Copy the FULL token from the
+   top of the page`
+				body := material.Body2(g.theme, instructions)
+				return layout.Inset{Top: unit.Dp(10), Bottom: unit.Dp(10)}.Layout(gtx, body.Layout)
+			}),
+			layout.Flexed(0.1, func(gtx layout.Context) layout.Dimensions {
+				return layout.Spacer{}.Layout(gtx)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				editor := material.Editor(g.theme, &g.tokenEditor, "Enter your YNAB API token...")
+				return editor.Layout(gtx)
+			}),
+			layout.Flexed(0.1, func(gtx layout.Context) layout.Dimensions {
+				return layout.Spacer{}.Layout(gtx)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				// Handle button click
+				for g.continueBtn.Clicked(gtx) {
+					g.handleTokenSubmit()
+				}
+
+				// Check for Enter key in editor
+				for {
+					_, ok := g.tokenEditor.Update(gtx)
+					if !ok {
+						break
+					}
+					g.handleTokenSubmit()
+				}
+
+				btn := material.Button(g.theme, &g.continueBtn, "Continue")
+				return layout.Center.Layout(gtx, btn.Layout)
+			}),
+			layout.Flexed(0.1, func(gtx layout.Context) layout.Dimensions {
+				return layout.Spacer{}.Layout(gtx)
+			}),
+		)
+	})
+}
+
+func (g *guiApp) handleTokenSubmit() {
+	token := strings.TrimSpace(g.tokenEditor.Text())
+	if token == "" {
+		g.showError(errors.New("please enter your API token"))
+		return
+	}
+
+	if len(token) != ynabTokenLength {
+		g.showError(fmt.Errorf("token should be %d characters long", ynabTokenLength))
+		return
+	}
+
+	g.token = token
+	g.state = guiStateExporting
+	g.window.Invalidate()
+
+	go func() {
+		if err := validateToken(token); err != nil {
+			g.showError(fmt.Errorf("token validation failed: %w", err))
+			return
+		}
+		g.fetchBudgets()
 	}()
 }
 
-func (g *guiApp) showBudgetSelection() {
+func (g *guiApp) fetchBudgets() {
+	budgets, err := fetchBudgetsSync(g.token)
+	if err != nil {
+		g.showError(fmt.Errorf("failed to fetch budgets: %w", err))
+		return
+	}
+
+	g.budgets = budgets
+	g.budgetClickables = make([]widget.Clickable, len(budgets))
 	g.state = guiStateBudgetSelect
-
-	title := widget.NewLabelWithStyle("Select a Budget to Export", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
-
-	// Create list of budgets
-	budgetNames := make([]string, 0, len(g.budgets))
-	for _, b := range g.budgets {
-		displayName := b.Title()
-		if b.LastModifiedOn != "" {
-			if t, err := time.Parse(time.RFC3339, b.LastModifiedOn); err == nil {
-				displayName = fmt.Sprintf("%s\nLast Modified: %s", b.Name, t.Format("2006-01-02"))
-			}
-		}
-		budgetNames = append(budgetNames, displayName)
-	}
-
-	selectedIndex := -1
-
-	list := widget.NewList(
-		func() int {
-			return len(budgetNames)
-		},
-		func() fyne.CanvasObject {
-			return container.NewVBox(
-				widget.NewLabel("Budget Name"),
-				widget.NewLabelWithStyle("ID", fyne.TextAlignLeading, fyne.TextStyle{Italic: true}),
-			)
-		},
-		func(id widget.ListItemID, obj fyne.CanvasObject) {
-			box, ok := obj.(*fyne.Container)
-			if !ok {
-				return
-			}
-			nameLabel, ok := box.Objects[0].(*widget.Label)
-			if !ok {
-				return
-			}
-			idLabel, ok := box.Objects[1].(*widget.Label)
-			if !ok {
-				return
-			}
-
-			nameLabel.SetText(g.budgets[id].Title())
-			idLabel.SetText(g.budgets[id].Description())
-		},
-	)
-
-	list.OnSelected = func(id widget.ListItemID) {
-		selectedIndex = id
-	}
-
-	exportBtn := widget.NewButton("Export Selected Budget", func() {
-		if selectedIndex < 0 {
-			dialog.ShowInformation("No selection", "Please select a budget first", g.window)
-			return
-		}
-
-		g.selectedBudget = g.budgets[selectedIndex]
-		g.exportBudgetAsync()
-	})
-	exportBtn.Importance = widget.HighImportance
-
-	backBtn := widget.NewButton("Back", func() {
-		g.showTokenEntry()
-	})
-
-	content := container.NewBorder(
-		container.NewVBox(title, widget.NewSeparator()),
-		container.NewVBox(
-			widget.NewSeparator(),
-			container.NewHBox(
-				layout.NewSpacer(),
-				backBtn,
-				exportBtn,
-			),
-		),
-		nil,
-		nil,
-		list,
-	)
-
-	g.window.SetContent(content)
+	g.window.Invalidate()
 }
 
-func (g *guiApp) exportBudgetAsync() {
+//nolint:gocognit // Complex layout function
+func (g *guiApp) layoutBudgetSelection(gtx layout.Context) layout.Dimensions {
+	inset := layout.Inset{Top: unit.Dp(20), Bottom: unit.Dp(20), Left: unit.Dp(20), Right: unit.Dp(20)}
+
+	// Ensure clickables are initialized
+	if len(g.budgetClickables) != len(g.budgets) {
+		g.budgetClickables = make([]widget.Clickable, len(g.budgets))
+	}
+
+	return inset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				title := material.H5(g.theme, "Select a Budget to Export")
+				title.Alignment = text.Middle
+				title.Color = color.NRGBA{R: 0, G: 0, B: 0, A: 255}
+				return layout.Inset{Bottom: unit.Dp(10)}.Layout(gtx, title.Layout)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				return g.drawSeparator(gtx)
+			}),
+			layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
+				// Show message if no budgets
+				if len(g.budgets) == 0 {
+					return layout.Center.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+						label := material.Body1(g.theme, "No budgets found")
+						return label.Layout(gtx)
+					})
+				}
+
+				// Render list - NOTE: Known Gio rendering issue causes text to grey after ~33 chars
+				return material.List(g.theme, &g.budgetList).Layout(gtx, len(g.budgets), func(gtx layout.Context, index int) layout.Dimensions {
+					selectedBudget := g.budgets[index]
+					isSelected := index == g.selectedIndex
+
+					// Handle click
+					if g.budgetClickables[index].Clicked(gtx) {
+						g.selectedIndex = index
+					}
+
+					// Use material.Clickable for interaction
+					return material.Clickable(gtx, &g.budgetClickables[index], func(gtx layout.Context) layout.Dimensions {
+						// Add padding
+						return layout.Inset{
+							Top:    unit.Dp(12),
+							Bottom: unit.Dp(12),
+							Left:   unit.Dp(16),
+							Right:  unit.Dp(16),
+						}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+							// Truncate budget name to 32 chars to avoid Gio rendering issue
+							budgetName := selectedBudget.Name
+							if len(budgetName) > 32 {
+								budgetName = budgetName[:32] + "..."
+							}
+
+							// Format last modified date concisely
+							lastModifiedText := "Last modified: unknown"
+							if selectedBudget.LastModifiedOn != "" {
+								if t, err := time.Parse(time.RFC3339, selectedBudget.LastModifiedOn); err == nil {
+									lastModifiedText = "Last modified: " + t.Format(time.DateOnly)
+								}
+							}
+
+							// Render name and last modified on separate lines
+							return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
+								layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+									label := material.Body1(g.theme, budgetName)
+									if isSelected {
+										label.Font.Weight = font.Bold
+									}
+									return label.Layout(gtx)
+								}),
+								layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+									lastModified := material.Caption(g.theme, lastModifiedText)
+									return layout.Inset{Top: unit.Dp(2)}.Layout(gtx, lastModified.Layout)
+								}),
+							)
+						})
+					})
+				})
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				return g.drawSeparator(gtx)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				return layout.Inset{Top: unit.Dp(10)}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+					return layout.Flex{Axis: layout.Horizontal, Spacing: layout.SpaceEnd}.Layout(gtx,
+						layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+							if g.backBtn.Clicked(gtx) {
+								g.state = guiStateToken
+								g.tokenEditor.SetText("")
+							}
+							return material.Button(g.theme, &g.backBtn, "Back").Layout(gtx)
+						}),
+						layout.Rigid(layout.Spacer{Width: unit.Dp(8)}.Layout),
+						layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+							if g.exportBtn.Clicked(gtx) {
+								if g.selectedIndex >= 0 {
+									g.selectedBudget = g.budgets[g.selectedIndex]
+									g.exportBudget()
+								} else {
+									g.showError(errors.New("please select a budget first"))
+								}
+							}
+							return material.Button(g.theme, &g.exportBtn, "Export Selected Budget").Layout(gtx)
+						}),
+					)
+				})
+			}),
+		)
+	})
+}
+
+func (g *guiApp) exportBudget() {
 	g.state = guiStateExporting
+	g.window.Invalidate()
 
-	// Show progress dialog
-	progressBar := widget.NewProgressBarInfinite()
-	progressContent := container.NewVBox(
-		widget.NewLabel("Exporting budget: "+g.selectedBudget.Name),
-		widget.NewLabel("Please wait..."),
-		progressBar,
-	)
-	progressDialog := dialog.NewCustomWithoutButtons("Exporting", progressContent, g.window)
-	progressDialog.Show()
-
-	// Export in background
 	go func() {
 		summary, path, jsonData, err := exportBudgetSync(g.token, g.selectedBudget.ID, g.selectedBudget.Name)
+		if err != nil {
+			g.showError(fmt.Errorf("export failed: %w", err))
+			return
+		}
 
-		// Update UI in main thread
-		fyne.Do(func() {
-			progressDialog.Hide()
-
-			if err != nil {
-				dialog.ShowError(fmt.Errorf("export failed: %w", err), g.window)
-				return
-			}
-
-			g.summary = summary
-			g.exportPath = path
-			g.jsonData = jsonData
-			g.showComplete()
-		})
+		g.summary = summary
+		g.exportPath = path
+		g.jsonData = jsonData
+		g.state = guiStateDone
+		g.window.Invalidate()
 	}()
 }
 
-func (g *guiApp) showComplete() {
-	g.state = guiStateDone
+func (g *guiApp) layoutExporting(gtx layout.Context) layout.Dimensions {
+	inset := layout.Inset{Top: unit.Dp(20), Bottom: unit.Dp(20), Left: unit.Dp(20), Right: unit.Dp(20)}
 
-	title := widget.NewLabelWithStyle("✓ Export Complete!", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
-	title.Importance = widget.SuccessImportance
+	return inset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		return layout.Flex{Axis: layout.Vertical, Spacing: layout.SpaceAround}.Layout(gtx,
+			layout.Flexed(0.4, func(gtx layout.Context) layout.Dimensions {
+				return layout.Spacer{}.Layout(gtx)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				var message string
+				if g.selectedBudget.Name != "" {
+					message = "Exporting budget: " + g.selectedBudget.Name
+				} else {
+					message = "Validating token..."
+				}
+				label := material.H6(g.theme, message)
+				label.Alignment = text.Middle
+				return layout.Center.Layout(gtx, label.Layout)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				label := material.Body1(g.theme, "Please wait...")
+				label.Alignment = text.Middle
+				return layout.Inset{Top: unit.Dp(10)}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+					return layout.Center.Layout(gtx, label.Layout)
+				})
+			}),
+			layout.Flexed(0.4, func(gtx layout.Context) layout.Dimensions {
+				return layout.Spacer{}.Layout(gtx)
+			}),
+		)
+	})
+}
 
-	budgetInfo := widget.NewLabel("Budget: " + g.selectedBudget.Name)
-	pathInfo := widget.NewLabel("Saved to: " + g.exportPath)
-	pathInfo.Wrapping = fyne.TextWrapWord
+func (g *guiApp) layoutComplete(gtx layout.Context) layout.Dimensions {
+	inset := layout.Inset{Top: unit.Dp(20), Bottom: unit.Dp(20), Left: unit.Dp(20), Right: unit.Dp(20)}
 
-	summaryTitle := widget.NewLabelWithStyle("Budget Summary:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-
-	// Build summary text
-	summaryText := fmt.Sprintf(`Currency:     %s
-Accounts:     %d%s
-Categories:   %d%s
-Payees:       %d
-Transactions: %d
-Date Range:   %s to %s
-File Size:    %s`,
-		g.summary.Currency,
-		g.summary.AccountCount,
-		func() string {
-			if g.summary.ClosedAccountCount > 0 {
-				return fmt.Sprintf(" (plus %d closed)", g.summary.ClosedAccountCount)
-			}
-			return ""
-		}(),
-		g.summary.CategoryCount,
-		func() string {
-			var details []string
-			if g.summary.HiddenCategoryCount > 0 {
-				details = append(details, fmt.Sprintf("%d hidden", g.summary.HiddenCategoryCount))
-			}
-			if g.summary.DeletedCategoryCount > 0 {
-				details = append(details, fmt.Sprintf("%d deleted", g.summary.DeletedCategoryCount))
-			}
-			if len(details) > 0 {
-				return fmt.Sprintf(" (plus %s)", strings.Join(details, ", "))
-			}
-			return ""
-		}(),
-		g.summary.PayeeCount,
-		g.summary.TransactionCount,
-		formatMonthYear(g.summary.FirstMonth),
-		formatMonthYear(g.summary.LastMonth),
-		humanizeFileSize(g.summary.FileSize),
-	)
-
-	summary := widget.NewLabel(summaryText)
-
-	instructionsTitle := widget.NewLabel("Next Steps:")
-	instructionsTitle.TextStyle = fyne.TextStyle{Bold: true}
-
-	instructions := widget.NewLabel(`1. Open Actual Budget
-2. If a budget is already open, select the dropdown menu and 'Close File'
+	return inset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				title := material.H5(g.theme, "✓ Export Complete!")
+				title.Alignment = text.Middle
+				title.Color = color.NRGBA{R: 0, G: 200, B: 0, A: 255}
+				return layout.Inset{Bottom: unit.Dp(10)}.Layout(gtx, title.Layout)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				// Truncate budget name if needed
+				budgetName := g.selectedBudget.Name
+				if len(budgetName) > 25 {
+					budgetName = budgetName[:25] + "..."
+				}
+				return material.Body1(g.theme, "Budget: "+budgetName).Layout(gtx)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				return layout.Inset{Top: unit.Dp(4)}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+					// Show just the filename, not full path
+					filename := filepath.Base(g.exportPath)
+					return material.Body2(g.theme, "Saved to Downloads folder: "+filename).Layout(gtx)
+				})
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				return layout.Inset{Top: unit.Dp(10), Bottom: unit.Dp(10)}.Layout(gtx, g.drawSeparator)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				summaryText := g.formatBudgetSummary()
+				return material.Body2(g.theme, summaryText).Layout(gtx)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				return layout.Inset{Top: unit.Dp(10), Bottom: unit.Dp(10)}.Layout(gtx, g.drawSeparator)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				instructions := `Next Steps:
+1. Open Actual Budget
+2. Close any open budget file
 3. Select 'Import file'
 4. Choose 'nYNAB'
-5. Select the exported JSON file
-6. Once imported, review your budget and follow cleanup steps at
-   actualbudget.org/docs/migration/nynab#cleanup`)
-	instructions.Wrapping = fyne.TextWrapWord
+5. Select the exported JSON
+6. Review budget and follow cleanup steps at:
+   actualbudget.org/docs/migration/nynab#cleanup`
+				return material.Body2(g.theme, instructions).Layout(gtx)
+			}),
+			layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
+				return layout.Spacer{}.Layout(gtx)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				return layout.Inset{Top: unit.Dp(10)}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+					return layout.Flex{Axis: layout.Horizontal, Spacing: layout.SpaceEnd}.Layout(gtx,
+						layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+							if g.exportAnotherBtn.Clicked(gtx) {
+								g.state = guiStateBudgetSelect
+								g.selectedIndex = -1
+							}
+							return material.Button(g.theme, &g.exportAnotherBtn, "Export Another Budget").Layout(gtx)
+						}),
+						layout.Rigid(layout.Spacer{Width: unit.Dp(8)}.Layout),
+						layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+							if g.closeBtn.Clicked(gtx) {
+								os.Exit(0)
+							}
+							return material.Button(g.theme, &g.closeBtn, "Close").Layout(gtx)
+						}),
+					)
+				})
+			}),
+		)
+	})
+}
 
-	// Display JSON preview (limit to first 50KB to avoid freezing)
-	const maxPreviewSize = 50 * 1024 // 50KB
-	jsonPreview := string(g.jsonData)
-	var truncatedMsg string
-	if len(g.jsonData) > maxPreviewSize {
-		jsonPreview = string(g.jsonData[:maxPreviewSize])
-		truncatedMsg = fmt.Sprintf("\n\n... (showing first 50KB of %s file)", humanizeFileSize(int64(len(g.jsonData))))
+func (g *guiApp) layoutError(gtx layout.Context) layout.Dimensions {
+	inset := layout.Inset{Top: unit.Dp(20), Bottom: unit.Dp(20), Left: unit.Dp(20), Right: unit.Dp(20)}
+
+	return inset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		return layout.Flex{Axis: layout.Vertical, Spacing: layout.SpaceAround}.Layout(gtx,
+			layout.Flexed(0.3, func(gtx layout.Context) layout.Dimensions {
+				return layout.Spacer{}.Layout(gtx)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				title := material.H5(g.theme, "Error")
+				title.Alignment = text.Middle
+				title.Color = color.NRGBA{R: 200, G: 0, B: 0, A: 255}
+				return layout.Center.Layout(gtx, title.Layout)
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				label := material.Body1(g.theme, g.errorMsg)
+				label.Alignment = text.Middle
+				return layout.Inset{Top: unit.Dp(20), Bottom: unit.Dp(20)}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+					return layout.Center.Layout(gtx, label.Layout)
+				})
+			}),
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				if g.errorOkBtn.Clicked(gtx) {
+					g.state = guiStateToken
+				}
+				btn := material.Button(g.theme, &g.errorOkBtn, "OK")
+				return layout.Center.Layout(gtx, btn.Layout)
+			}),
+			layout.Flexed(0.3, func(gtx layout.Context) layout.Dimensions {
+				return layout.Spacer{}.Layout(gtx)
+			}),
+		)
+	})
+}
+
+func (g *guiApp) drawSeparator(gtx layout.Context) layout.Dimensions {
+	line := widget.Border{
+		Color: color.NRGBA{R: 200, G: 200, B: 200, A: 255},
+		Width: unit.Dp(1),
 	}
-
-	// Use RichText with monospace for better JSON display
-	jsonText := widget.NewRichTextFromMarkdown("```json\n" + jsonPreview + truncatedMsg + "\n```")
-	jsonText.Wrapping = fyne.TextWrapOff
-
-	jsonScroll := container.NewScroll(jsonText)
-	jsonScroll.SetMinSize(fyne.NewSize(550, 200))
-
-	jsonAccordion := widget.NewAccordion(
-		widget.NewAccordionItem("View Exported JSON (Preview)", jsonScroll),
-	)
-
-	closeBtn := widget.NewButton("Close", func() {
-		g.app.Quit()
+	return line.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		return layout.Dimensions{
+			Size: image.Point{X: gtx.Constraints.Max.X, Y: gtx.Dp(unit.Dp(1))},
+		}
 	})
-	closeBtn.Importance = widget.HighImportance
+}
 
-	exportAnotherBtn := widget.NewButton("Export Another Budget", func() {
-		g.showBudgetSelection()
-	})
+func (g *guiApp) showError(err error) {
+	g.errorMsg = err.Error()
+	g.state = guiStateError
+	g.window.Invalidate()
+}
 
-	content := container.NewVBox(
-		layout.NewSpacer(),
-		container.NewCenter(title),
-		layout.NewSpacer(),
-		budgetInfo,
-		pathInfo,
-		widget.NewSeparator(),
-		summaryTitle,
-		summary,
-		widget.NewSeparator(),
-		jsonAccordion,
-		widget.NewSeparator(),
-		instructionsTitle,
-		instructions,
-		layout.NewSpacer(),
-		container.NewHBox(
-			layout.NewSpacer(),
-			exportAnotherBtn,
-			closeBtn,
-		),
-	)
-
-	scrollContainer := container.NewScroll(content)
-	g.window.SetContent(scrollContainer)
+func (g *guiApp) formatBudgetSummary() string {
+	// Format with shorter labels to fit
+	var result strings.Builder
+	result.WriteString("Budget Summary:\n\n")
+	result.WriteString(fmt.Sprintf("Currency: %s\n", g.summary.Currency))
+	result.WriteString(fmt.Sprintf("Accounts: %d", g.summary.AccountCount))
+	if g.summary.ClosedAccountCount > 0 {
+		result.WriteString(fmt.Sprintf("\n  (+%d closed)", g.summary.ClosedAccountCount))
+	}
+	result.WriteString(fmt.Sprintf("\nCategories: %d", g.summary.CategoryCount))
+	var catDetails []string
+	if g.summary.HiddenCategoryCount > 0 {
+		catDetails = append(catDetails, fmt.Sprintf("%d hidden", g.summary.HiddenCategoryCount))
+	}
+	if g.summary.DeletedCategoryCount > 0 {
+		catDetails = append(catDetails, fmt.Sprintf("%d deleted", g.summary.DeletedCategoryCount))
+	}
+	if len(catDetails) > 0 {
+		result.WriteString(fmt.Sprintf("\n  (+%s)", strings.Join(catDetails, ", ")))
+	}
+	result.WriteString(fmt.Sprintf("\nPayees: %d", g.summary.PayeeCount))
+	result.WriteString(fmt.Sprintf("\nTransactions: %d", g.summary.TransactionCount))
+	result.WriteString("\nFrom: " + formatMonthYear(g.summary.FirstMonth))
+	result.WriteString("\nTo: " + formatMonthYear(g.summary.LastMonth))
+	result.WriteString("\nSize: " + humanizeFileSize(g.summary.FileSize))
+	return result.String()
 }

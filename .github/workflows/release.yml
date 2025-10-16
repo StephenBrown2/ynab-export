@@ -11,23 +11,8 @@ permissions:
 
 jobs:
   build:
-    name: Build ${{ matrix.name }}
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      matrix:
-        include:
-          - name: linux-amd64
-            runner: ubuntu-latest
-            os: linux
-            arch: amd64
-          - name: darwin-arm64
-            runner: macos-latest  # Apple Silicon (M1/M2)
-            os: darwin
-            arch: arm64
-          - name: windows-amd64
-            runner: windows-latest
-            os: windows
-            arch: amd64
+    name: Build all platforms
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -41,52 +26,32 @@ jobs:
           go-version-file: 'go.mod'
           check-latest: true
 
-      - name: Install Docker on macOS
-        if: matrix.os == 'darwin'
-        shell: bash
-        run: |
-          brew install docker
-          brew install colima
-          brew services start colima
-
-      - name: Install fyne and fyne-cross
-        shell: bash
-        run: |
-          go install fyne.io/fyne/v2/cmd/fyne@latest
-          go install github.com/fyne-io/fyne-cross@latest
-
-      - name: Build with fyne-cross
+      - name: Build for all platforms
         shell: bash
         run: |
           export GOEXPERIMENT=jsonv2
           export GOTOOLCHAIN=auto
-
-          # Determine path to fyne-cross based on OS
-          if [ "${{ matrix.os }}" = "windows" ]; then
-            FYNE_CROSS="$HOME/go/bin/fyne-cross.exe"
-          else
-            FYNE_CROSS="$HOME/go/bin/fyne-cross"
-          fi
-
-          # Build using fyne-cross (uses Docker with all dependencies)
-          "$FYNE_CROSS" ${{ matrix.os }} \
-            -app-id com.stephenbrown2.ynab-export \
-            -arch ${{ matrix.arch }}
-
-      - name: Prepare binary for GoReleaser
-        shell: bash
-        run: |
           mkdir -p dist
-          if [ "${{ matrix.os }}" = "windows" ]; then
-            cp fyne-cross/bin/${{ matrix.os }}-${{ matrix.arch }}/ynab-export.exe dist/ynab-export_${{ matrix.os }}_${{ matrix.arch }}.exe
-          else
-            cp fyne-cross/bin/${{ matrix.os }}-${{ matrix.arch }}/ynab-export dist/ynab-export_${{ matrix.os }}_${{ matrix.arch }}
-          fi
+          
+          # Build for Linux amd64
+          GOOS=linux GOARCH=amd64 go build -o dist/ynab-export_linux_amd64 .
+          
+          # Build for Linux arm64
+          GOOS=linux GOARCH=arm64 go build -o dist/ynab-export_linux_arm64 .
+          
+          # Build for macOS amd64 (Intel)
+          GOOS=darwin GOARCH=amd64 go build -o dist/ynab-export_darwin_amd64 .
+          
+          # Build for macOS arm64 (Apple Silicon)
+          GOOS=darwin GOARCH=arm64 go build -o dist/ynab-export_darwin_arm64 .
+          
+          # Build for Windows amd64
+          GOOS=windows GOARCH=amd64 go build -o dist/ynab-export_windows_amd64.exe .
 
-      - name: Upload artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: binary-${{ matrix.name }}
+          name: binaries
           path: dist/*
 
   release:
@@ -108,9 +73,8 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
+          name: binaries
           path: dist
-          pattern: binary-*
-          merge-multiple: true
 
       - name: Display structure
         run: ls -lah dist/
