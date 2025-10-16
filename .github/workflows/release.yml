@@ -24,6 +24,14 @@ jobs:
           go-version-file: 'go.mod'
           check-latest: true
 
+      - name: Set up Zig
+        uses: goto-bus-stop/setup-zig@v2
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev xorg-dev
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
