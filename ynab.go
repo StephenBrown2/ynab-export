@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json/v2"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -300,28 +299,4 @@ func exportBudget(token, budgetID, budgetName string) tea.Msg {
 	}
 
 	return exportDoneMsg{path: filePath, summary: summary, jsonData: body}
-}
-
-// fetchBudgetsSync fetches budgets synchronously for GUI use.
-func fetchBudgetsSync(token string) ([]budget, error) {
-	msg := fetchBudgets(token)
-	if fetchMsg, ok := msg.(budgetsFetchedMsg); ok {
-		if fetchMsg.err != nil {
-			return nil, fetchMsg.err
-		}
-		return fetchMsg.budgets, nil
-	}
-	return nil, errors.New("unexpected message type")
-}
-
-// exportBudgetSync exports a budget synchronously for GUI use.
-func exportBudgetSync(token, budgetID, budgetName string) (budgetSummary, string, []byte, error) {
-	msg := exportBudget(token, budgetID, budgetName)
-	if exportMsg, ok := msg.(exportDoneMsg); ok {
-		if exportMsg.err != nil {
-			return budgetSummary{}, "", nil, exportMsg.err
-		}
-		return exportMsg.summary, exportMsg.path, exportMsg.jsonData, nil
-	}
-	return budgetSummary{}, "", nil, errors.New("unexpected message type")
 }
