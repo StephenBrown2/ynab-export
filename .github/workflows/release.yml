@@ -41,6 +41,14 @@ jobs:
           go-version-file: 'go.mod'
           check-latest: true
 
+      - name: Install Docker on macOS
+        if: matrix.os == 'darwin'
+        shell: bash
+        run: |
+          brew install docker
+          brew install colima
+          brew services start colima
+
       - name: Install fyne-cross
         shell: bash
         run: go install github.com/fyne-io/fyne-cross@latest
