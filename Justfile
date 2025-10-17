@@ -1,13 +1,15 @@
 # Justfile for ynab-export
 # Requires: https://github.com/casey/just
-
 # Export GOEXPERIMENT to enable json/v2 for all recipes
+
 export GOEXPERIMENT := "jsonv2"
 
 # Use Git Bash on Windows for better compatibility
+
 set windows-shell := ["bash.exe", "-c"]
 
 # Binary name based on OS
+
 bin_file := if os_family() == "windows" { "ynab-export.exe" } else { "ynab-export" }
 
 # Default recipe to display help information
@@ -17,7 +19,7 @@ default:
 # Build the application for the current platform
 [group('build')]
 build:
-    go build -o {{bin_file}} .
+    go build -o {{ bin_file }} .
 
 # Run the application
 [group('dev')]
@@ -32,7 +34,7 @@ test:
 # Clean build artifacts
 [group('build')]
 clean:
-    rm -f {{bin_file}}
+    rm -f {{ bin_file }}
     rm -rf dist/
     go clean
 
@@ -78,9 +80,10 @@ build-windows:
 build-windows-arm:
     GOOS=windows GOARCH=arm64 go build -o dist/ynab-export-windows-arm64.exe .
 
-# Format code using golangci-lint formatters (gofumpt + goimports)
+# Format code using golangci-lint formatters
 [group('lint')]
 fmt:
+    just --fmt --unstable
     @echo "Formatting code..."
     @if command -v golangci-lint >/dev/null 2>&1; then \
         golangci-lint fmt ./...; \
@@ -94,6 +97,7 @@ fmt:
 fmt-check:
     #!/usr/bin/env bash
     set -euo pipefail
+    just --fmt --check --unstable
     echo "Checking code formatting..."
     if command -v golangci-lint >/dev/null 2>&1; then
         output=$(golangci-lint fmt --diff ./... 2>&1)
@@ -127,7 +131,7 @@ lint:
 
 # Run linter and automatically fix issues where possible
 [group('lint')]
-lint-fix:
+lint-fix: fmt
     @echo "Running golangci-lint with auto-fix..."
     @golangci-lint run --fix ./...
 
@@ -151,20 +155,20 @@ info:
 # Create a new release (tags and pushes)
 [group('release')]
 release version:
-    @echo "Creating release {{version}}"
+    @echo "Creating release {{ version }}"
     @git push origin master
-    git tag -a {{version}} -m "Release {{version}}"
-    git push origin {{version}}
+    git tag -a {{ version }} -m "Release {{ version }}"
+    git push origin {{ version }}
     @echo
     @echo "Monitor the release on GitHub:"
     @echo "https://github.com/StephenBrown2/ynab-export/actions"
-    @echo "https://github.com/StephenBrown2/ynab-export/releases/tag/{{version}}"
+    @echo "https://github.com/StephenBrown2/ynab-export/releases/tag/{{ version }}"
 
 # Delete a release tag and recreate it (useful for fixing failed releases)
 [group('release')]
 redo-release version:
-    @echo "Deleting tag {{version}} locally and remotely..."
-    -git tag -d {{version}}
-    -git push origin :refs/tags/{{version}}
-    @echo "Recreating release {{version}}"
-    @just release {{version}}
+    @echo "Deleting tag {{ version }} locally and remotely..."
+    -git tag -d {{ version }}
+    -git push origin :refs/tags/{{ version }}
+    @echo "Recreating release {{ version }}"
+    @just release {{ version }}
