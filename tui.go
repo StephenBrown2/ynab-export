@@ -294,8 +294,6 @@ func (m model) handleBudgetsFetched(msg budgetsFetchedMsg) (model, tea.Cmd) {
 }
 
 // handleExportDone processes export done message.
-//
-//nolint:unparam // Cmd is always nil, but keeping consistent signature with other handlers
 func (m model) handleExportDone(msg exportDoneMsg) (model, tea.Cmd) {
 	if msg.err != nil {
 		m.err = msg.err
@@ -310,7 +308,7 @@ func (m model) handleExportDone(msg exportDoneMsg) (model, tea.Cmd) {
 	m.budgetTable = createBudgetTable(msg.jsonData)
 
 	m.state = stateDone
-	return m, nil
+	return m, tea.Quit
 }
 
 // updateInputs updates interactive components based on state.
@@ -426,8 +424,7 @@ func (m model) View() string {
 		b.WriteString("  4. Choose 'nYNAB'\n")
 		b.WriteString("  5. Select the exported JSON file\n")
 		b.WriteString("  6. Once imported, review your budget and follow cleanup steps at\n")
-		b.WriteString("     https://actualbudget.org/docs/migration/nynab#cleanup\n\n")
-		b.WriteString(helpStyle.Render("Press Enter or q to quit"))
+		b.WriteString("     https://actualbudget.org/docs/migration/nynab#cleanup\n")
 
 	case stateError:
 		b.WriteString(errorStyle.Render("✗ Error") + "\n\n")
