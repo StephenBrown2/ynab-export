@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
@@ -114,6 +113,7 @@ type model struct {
 	summary            budgetSummary
 	state              state
 	tokenLengthValid   bool
+	tokenSource        TokenSource
 }
 
 type budgetsFetchedMsg struct {
@@ -142,7 +142,7 @@ func validateTokenAsync(token string) tea.Cmd {
 	}
 }
 
-func initialModel() model {
+func initialModel(token string, source TokenSource) model {
 	ti := textinput.New()
 	ti.Placeholder = "Enter your YNAB API token..."
 	ti.Focus()
@@ -151,14 +151,13 @@ func initialModel() model {
 	ti.EchoMode = textinput.EchoPassword
 	ti.EchoCharacter = '•'
 
-	// Check for token in environment variable
-	envToken := os.Getenv("YNAB_API_TOKEN")
-	if envToken != "" {
-		// If token is in environment, validate it first
+	// If we have a token from flag, env, or cache, validate it
+	if token != "" && source != TokenSourceNone {
 		return model{
-			state:      stateValidatingToken,
-			token:      envToken,
-			tokenInput: ti,
+			state:       stateValidatingToken,
+			token:       token,
+			tokenSource: source,
+			tokenInput:  ti,
 		}
 	}
 
@@ -218,6 +217,7 @@ func (m model) handleEnterKey() (model, tea.Cmd) {
 		// Only proceed if token is non-empty and has valid length
 		if strings.TrimSpace(m.tokenInput.Value()) != "" && m.tokenLengthValid {
 			m.token = strings.TrimSpace(m.tokenInput.Value())
+			m.tokenSource = TokenSourceManual
 			m.state = stateValidatingToken
 			return m, validateTokenAsync(m.token)
 		}
@@ -239,12 +239,25 @@ func (m model) handleEnterKey() (model, tea.Cmd) {
 func (m model) handleTokenValidated(msg tokenValidatedMsg) (model, tea.Cmd) {
 	if msg.err != nil {
 		// Token validation failed, show token input screen with error
+		// Include the source of the token in the error message
+		errorMsg := "Invalid token: " + msg.err.Error()
+		if m.tokenSource != TokenSourceNone && m.tokenSource != TokenSourceManual {
+			errorMsg = fmt.Sprintf("Token from %s is no longer valid: %s", m.tokenSource, msg.err.Error())
+			// If the invalid token was cached, delete it (best effort, ignore errors)
+			if m.tokenSource == TokenSourceCached {
+				_ = DeleteCachedToken() //nolint:errcheck // Best effort cleanup, don't block on failure
+			}
+		}
 		m.state = stateToken
 		m.token = ""
 		m.tokenLengthValid = false
-		m.tokenValidationErr = "Invalid token: " + msg.err.Error()
+		m.tokenSource = TokenSourceNone
+		m.tokenValidationErr = errorMsg
 		return m, textinput.Blink
 	}
+
+	// Token is valid, save it to cache for future use (best effort, ignore errors)
+	_ = SaveCachedToken(msg.token) //nolint:errcheck // Best effort caching, don't block on failure
 
 	// Token is valid, proceed to fetch budgets
 	m.token = msg.token
