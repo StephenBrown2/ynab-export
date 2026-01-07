@@ -21,6 +21,10 @@ default:
 build:
     go build -o {{ bin_file }} .
 
+[group('build')]
+install:
+    go install .
+
 # Run the application
 [group('dev')]
 run:
