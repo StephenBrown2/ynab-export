@@ -17,6 +17,10 @@ interactive terminal interface that guides you through each step.
 
 🔒 Secure • 🚀 Fast • 🌐 Cross-platform • 📦 No installation required
 
+## Demo
+
+![Demo of YNAB Export Tool](demo/demo.gif)
+
 ---
 
 ## Installation
@@ -149,17 +153,16 @@ ynab-export.exe --token "your-api-token-here"
 
 > **Note:** Do not double-click the `.exe` file - it must be run from
 > a terminal to interact with the application properly.
-
+>
 > **Recommended:** Install [Windows Terminal][windows-terminal] for the
 > best experience. It's free from the Microsoft Store and provides a
 > modern terminal with better colors and font rendering.
->
-> To install: Open Microsoft Store → Search "Windows Terminal" → Click "Get"
->
+> To install: Open Microsoft Store → Search "Windows Terminal" → Click "Get".
 > Once installed, right-click in your Downloads folder and select
 > "Open in Terminal" to run the executable.
-
-> **Tip:** If you downloaded from the browser, you can rename the binary to simply `ynab-export` (or `ynab-export.exe` on Windows) for easier use.
+>
+> **Tip:** If you downloaded from the browser, you can rename the binary to simply
+> `ynab-export` (or `ynab-export.exe` on Windows) for easier use.
 
 ### Step 3: Follow the Prompts
 
@@ -223,118 +226,27 @@ Now that you have your exported JSON file:
 
 ## Screenshots
 
-### 1. Welcome Screen (Token Entry)
+See the [Demo](#demo) above for an animated walkthrough of the complete export process.
 
-```text
-┌────────────────────────────────────────────────────┐
-│ YNAB Budget Exporter                               │
-│                                                    │
-│ This tool will help you export your YNAB budget   │
-│ for import into Actual Budget.                    │
-│                                                    │
-│ To get your API token:                            │
-│   1. Sign in to the YNAB web app                  │
-│   2. Go to Account Settings → Developer Settings  │
-│   3. Under 'Personal Access Tokens', click 'New'  │
-│   4. Enter your password and click 'Generate'     │
-│                                                    │
-│ Enter your YNAB API token: ••••••••••••••••••••   │
-│                                                    │
-│ Press Enter to continue • Ctrl+C to quit          │
-└────────────────────────────────────────────────────┘
-```
+### 1. Token Entry
 
-### 2. Token Validation
+![Token Entry Screen](demo/demo-1-token.png)
 
-As you type, the tool validates your token length:
+### 2. Token Validation (Invalid)
 
-```text
-┌────────────────────────────────────────────────────┐
-│ YNAB Budget Exporter                               │
-│                                                    │
-│ Enter your YNAB API token: ••••••••••••••••••     │
-│ ⚠ Token too short (18/43 characters)              │
-│                                                    │
-│ Press Enter to continue • Ctrl+C to quit          │
-└────────────────────────────────────────────────────┘
-```
+![Invalid Token](demo/demo-2-invalid-token.png)
 
-Once the token is the correct length:
+### 3. Token Validation (Valid)
 
-```text
-│ Enter your YNAB API token: •••••••••••••••••••••  │
-│ ✓ Token length valid                              │
-```
+![Valid Token](demo/demo-3-valid-token.png)
 
-### 3. Budget Selection
+### 4. Budget Selection
 
-```text
-┌────────────────────────────────────────────────────┐
-│ YNAB Budget Exporter                               │
-│                                                    │
-│ Select a budget to export:                        │
-│                                                    │
-│ > Personal Budget (Last Modified: 2025-10-14)     │
-│   f1a2b3c4-d5e6-7f8g-9h0i-1j2k3l4m5n6o             │
-│                                                    │
-│   Family Budget (Last Modified: 2025-10-10)       │
-│   a1b2c3d4-e5f6-7g8h-9i0j-1k2l3m4n5o6p             │
-│                                                    │
-│   Business Budget (Last Modified: 2025-09-28)     │
-│   z9y8x7w6-v5u4-t3s2-r1q0-p9o8n7m6l5k4             │
-│                                                    │
-│ Use ↑/↓ to navigate • / to search • Enter to      │
-│ select • Esc to go back • q/Ctrl+C to quit        │
-└────────────────────────────────────────────────────┘
-```
+![Budget Selection](demo/demo-4-selected-budget.png)
 
-### 4. Export in Progress
+### 5. Export Complete
 
-```text
-┌────────────────────────────────────────────────────┐
-│ YNAB Budget Exporter                               │
-│                                                    │
-│ Exporting Budget...                               │
-│                                                    │
-│ Downloading budget: Personal Budget               │
-│ Please wait...                                    │
-└────────────────────────────────────────────────────┘
-```
-
-### 5. Export Complete with Budget Summary
-
-```text
-┌────────────────────────────────────────────────────┐
-│ ✓ Export Complete!                                │
-│                                                    │
-│ Budget: Personal Budget                           │
-│ Saved to: ~/Downloads/ynab-export-personal-       │
-│           budget-20251015-143022.json             │
-│ File Size: 2.3 MB                                 │
-│                                                    │
-│ Budget Structure (data.budget):                   │
-│ ╭────────────────────────┬───────────────────────╮│
-│ │ id                     │ "abc123-..."          ││
-│ │ name                   │ "Personal Budget"     ││
-│ │ accounts               │ [list 8 items]        ││
-│ │ categories             │ [list 24 items]       ││
-│ │ payees                 │ [list 142 items]      ││
-│ │ transactions           │ [list 1847 items]     ││
-│ │ ...                    │ ...                   ││
-│ ╰────────────────────────┴───────────────────────╯│
-│                                                    │
-│ You can now import this file into Actual Budget:  │
-│   1. Open Actual Budget                           │
-│   2. If a budget is already open, select the      │
-│      dropdown menu and 'Close File'               │
-│   3. Select 'Import file'                         │
-│   4. Choose 'nYNAB'                               │
-│   5. Select the exported JSON file                │
-│   6. Once imported, review your budget and        │
-│      follow cleanup steps at                      │
-│      actualbudget.org/docs/migration/nynab#cleanup│
-└────────────────────────────────────────────────────┘
-```
+![Export Complete](demo/demo-5-export.png)
 
 ## Keyboard Shortcuts
 

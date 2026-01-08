@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/oapi-codegen/oapi-codegen/HEAD/configuration-schema.json
+package: mockserver
+generate:
+  std-http-server: true
+  models: true
+output: gen.go
+output-options:
+  skip-prune: false
+  overlay:
+    path: overlay.yaml

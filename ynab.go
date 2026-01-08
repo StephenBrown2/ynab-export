@@ -14,9 +14,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-const (
-	ynabAPIBase = "https://api.ynab.com/v1"
-)
+// ynabAPIBase is the base URL for the YNAB API.
+// It can be overridden for demo mode or testing.
+var ynabAPIBase = "https://api.ynab.com/v1"
 
 type budget struct {
 	ID             string `json:"id"`

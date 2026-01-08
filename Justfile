@@ -30,6 +30,34 @@ install:
 run:
     go run .
 
+# Run the application in demo mode with mock YNAB API
+[group('dev')]
+demo:
+    #!/usr/bin/env bash
+    export YNAB_DEMO_MODE=true
+    export YNAB_MOCK_DELAY_USER=300ms
+    export YNAB_MOCK_DELAY_BUDGETS=500ms
+    export YNAB_MOCK_DELAY_BUDGET=1500ms
+    go run .
+
+# Record just the main demo GIF
+[group('dev')]
+record-demo: build
+    vhs demo/demo.tape
+
+# Record all demo tapes
+[group('dev')]
+record: record-demo
+    vhs demo/01-manual-token.tape
+    vhs demo/02-env-token.tape
+    vhs demo/03-flag-token.tape
+
+# Generate mock server code from OpenAPI spec
+[group('dev')]
+[working-directory('internal/mockserver')]
+generate:
+    oapi-codegen -config oapi-codegen.yaml open_api_spec.yaml
+
 # Run tests
 [group('test')]
 test:
@@ -42,13 +70,28 @@ clean:
     rm -rf dist/
     go clean
 
-# Install dependencies and golangci-lint
+# Install dependencies and development tools
 [group('setup')]
 deps:
     go mod download
     go mod tidy
     @echo "Installing golangci-lint..."
     @curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin
+    @echo "Installing oapi-codegen..."
+    @go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+    @echo "Installing vhs..."
+    @go install github.com/charmbracelet/vhs@latest
+    @echo "Checking vhs runtime dependencies..."
+    @command -v ffmpeg >/dev/null 2>&1 || echo "  ⚠ ffmpeg not found. Install via: brew install ffmpeg (macOS) or your system package manager"
+    @command -v ttyd >/dev/null 2>&1 || echo "  ⚠ ttyd not found. Install via: brew install ttyd (macOS) or go install github.com/nicholasgasior/gotty@latest"
+    @echo "Installing markdownlint-cli2..."
+    @command -v markdownlint-cli2 >/dev/null 2>&1 || { \
+        if command -v npm >/dev/null 2>&1; then \
+            npm install -g markdownlint-cli2; \
+        else \
+            echo "  ⚠ npm not found. Install Node.js to get markdownlint-cli2"; \
+        fi; \
+    }
 
 # Cross-compile for all platforms (both amd64 and arm64)
 [group('build')]
@@ -132,12 +175,22 @@ lint:
         echo "ERROR: golangci-lint not found. Run 'just deps' to install it."; \
         exit 1; \
     fi
+    @echo "Running markdownlint..."
+    @if command -v markdownlint-cli2 >/dev/null 2>&1; then \
+        markdownlint-cli2 '**/*.md' '#node_modules'; \
+    else \
+        echo "WARNING: markdownlint-cli2 not found. Run 'just deps' for install instructions."; \
+    fi
 
 # Run linter and automatically fix issues where possible
 [group('lint')]
 lint-fix: fmt
     @echo "Running golangci-lint with auto-fix..."
     @golangci-lint run --fix ./...
+    @echo "Running markdownlint with auto-fix..."
+    @if command -v markdownlint-cli2 >/dev/null 2>&1; then \
+        markdownlint-cli2 --fix '**/*.md' '#node_modules' || true; \
+    fi
 
 # Run all checks (format, lint, test)
 [group('test')]

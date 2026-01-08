@@ -1,0 +1,945 @@
+>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+  YNAB Budget Exporter
+
+This tool will help you export your YNAB budget for import into Actual Budget.
+
+To get your API token:
+  1. Sign in to the YNAB web app
+  2. Go to Account Settings → Developer Settings
+  3. Under 'Personal Access Tokens', click 'New Token'
+  4. Enter your password and click 'Generate'
+  5. Copy the FULL token from the top (under 'New Personal Access Token:')
+     NOT the partially hidden one in the table below!
+
+Visit: https://app.ynab.com/settings/developer
+
+> Enter your YNAB API token...
+
+Press Enter to continue • Ctrl+C to quit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+  YNAB Budget Exporter
+
+This tool will help you export your YNAB budget for import into Actual Budget.
+
+To get your API token:
+  1. Sign in to the YNAB web app
+  2. Go to Account Settings → Developer Settings
+  3. Under 'Personal Access Tokens', click 'New Token'
+  4. Enter your password and click 'Generate'
+  5. Copy the FULL token from the top (under 'New Personal Access Token:')
+     NOT the partially hidden one in the table below!
+
+Visit: https://app.ynab.com/settings/developer
+
+> Enter your YNAB API token...
+
+Press Enter to continue • Ctrl+C to quit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+  YNAB Budget Exporter
+
+This tool will help you export your YNAB budget for import into Actual Budget.
+
+To get your API token:
+  1. Sign in to the YNAB web app
+  2. Go to Account Settings → Developer Settings
+  3. Under 'Personal Access Tokens', click 'New Token'
+  4. Enter your password and click 'Generate'
+  5. Copy the FULL token from the top (under 'New Personal Access Token:')
+     NOT the partially hidden one in the table below!
+
+Visit: https://app.ynab.com/settings/developer
+
+> Enter your YNAB API token...
+
+Press Enter to continue • Ctrl+C to quit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+  YNAB Budget Exporter
+
+This tool will help you export your YNAB budget for import into Actual Budget.
+
+To get your API token:
+  1. Sign in to the YNAB web app
+  2. Go to Account Settings → Developer Settings
+  3. Under 'Personal Access Tokens', click 'New Token'
+  4. Enter your password and click 'Generate'
+  5. Copy the FULL token from the top (under 'New Personal Access Token:')
+     NOT the partially hidden one in the table below!
+
+Visit: https://app.ynab.com/settings/developer
+
+> •••••••••••••••
+⚠ Token too short (15/43 characters)
+
+Press Enter to continue • Ctrl+C to quit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+  YNAB Budget Exporter
+
+This tool will help you export your YNAB budget for import into Actual Budget.
+
+To get your API token:
+  1. Sign in to the YNAB web app
+  2. Go to Account Settings → Developer Settings
+  3. Under 'Personal Access Tokens', click 'New Token'
+  4. Enter your password and click 'Generate'
+  5. Copy the FULL token from the top (under 'New Personal Access Token:')
+     NOT the partially hidden one in the table below!
+
+Visit: https://app.ynab.com/settings/developer
+
+> •••••••••••••••
+⚠ Token too short (15/43 characters)
+
+Press Enter to continue • Ctrl+C to quit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+  YNAB Budget Exporter
+
+This tool will help you export your YNAB budget for import into Actual Budget.
+
+To get your API token:
+  1. Sign in to the YNAB web app
+  2. Go to Account Settings → Developer Settings
+  3. Under 'Personal Access Tokens', click 'New Token'
+  4. Enter your password and click 'Generate'
+  5. Copy the FULL token from the top (under 'New Personal Access Token:')
+     NOT the partially hidden one in the table below!
+
+Visit: https://app.ynab.com/settings/developer
+
+> •••••••••••••••••••••••••••••••••••••••••••
+✓ Token length valid
+
+Press Enter to continue • Ctrl+C to quit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+  YNAB Budget Exporter
+
+This tool will help you export your YNAB budget for import into Actual Budget.
+
+To get your API token:
+  1. Sign in to the YNAB web app
+  2. Go to Account Settings → Developer Settings
+  3. Under 'Personal Access Tokens', click 'New Token'
+  4. Enter your password and click 'Generate'
+  5. Copy the FULL token from the top (under 'New Personal Access Token:')
+     NOT the partially hidden one in the table below!
+
+Visit: https://app.ynab.com/settings/developer
+
+> •••••••••••••••••••••••••••••••••••••••••••
+✓ Token length valid
+
+Press Enter to continue • Ctrl+C to quit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+  YNAB Budget Exporter
+
+This tool will help you export your YNAB budget for import into Actual Budget.
+
+To get your API token:
+  1. Sign in to the YNAB web app
+  2. Go to Account Settings → Developer Settings
+  3. Under 'Personal Access Tokens', click 'New Token'
+  4. Enter your password and click 'Generate'
+  5. Copy the FULL token from the top (under 'New Personal Access Token:')
+     NOT the partially hidden one in the table below!
+
+Visit: https://app.ynab.com/settings/developer
+
+> •••••••••••••••••••••••••••••••••••••••••••
+✓ Token length valid
+
+Press Enter to continue • Ctrl+C to quit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+  Validating Token...
+
+Please wait while we validate your YNAB API token.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+    Select a Budget
+
+│ Personal Budget (Last Modified: 2026-01-06)
+│ 7961c8c4-a213-4b95-9944-c6de1bba1fcd
+
+  Family Finances (Last Modified: 2025-08-15)
+  7b2f2eef-2f78-40aa-a9b7-57f7c1aa7b75
+
+  Household Expenses (Last Modified: 2025-06-09)
+  ea29207b-0350-4924-9703-ca7d6a78c9a1
+
+  Monthly Budget (Last Modified: 2025-02-16)
+  070302aa-2841-4959-b7c8-f6fe4349be27
+
+  Joint Expenses (Last Modified: 2024-08-01)
+  d2c66cdc-06f9-4f1a-b51c-1d236fd69d22
+
+  ••
+
+  ↑/k up • ↓/j down • / filter • q quit • ? more
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+    Select a Budget
+
+  Personal Budget (Last Modified: 2026-01-06)
+  7961c8c4-a213-4b95-9944-c6de1bba1fcd
+
+│ Family Finances (Last Modified: 2025-08-15)
+│ 7b2f2eef-2f78-40aa-a9b7-57f7c1aa7b75
+
+  Household Expenses (Last Modified: 2025-06-09)
+  ea29207b-0350-4924-9703-ca7d6a78c9a1
+
+  Monthly Budget (Last Modified: 2025-02-16)
+  070302aa-2841-4959-b7c8-f6fe4349be27
+
+  Joint Expenses (Last Modified: 2024-08-01)
+  d2c66cdc-06f9-4f1a-b51c-1d236fd69d22
+
+  ••
+
+  ↑/k up • ↓/j down • / filter • q quit • ? more
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+    Select a Budget
+
+  Personal Budget (Last Modified: 2026-01-06)
+  7961c8c4-a213-4b95-9944-c6de1bba1fcd
+
+│ Family Finances (Last Modified: 2025-08-15)
+│ 7b2f2eef-2f78-40aa-a9b7-57f7c1aa7b75
+
+  Household Expenses (Last Modified: 2025-06-09)
+  ea29207b-0350-4924-9703-ca7d6a78c9a1
+
+  Monthly Budget (Last Modified: 2025-02-16)
+  070302aa-2841-4959-b7c8-f6fe4349be27
+
+  Joint Expenses (Last Modified: 2024-08-01)
+  d2c66cdc-06f9-4f1a-b51c-1d236fd69d22
+
+  ••
+
+  ↑/k up • ↓/j down • / filter • q quit • ? more
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+    Select a Budget
+
+  Personal Budget (Last Modified: 2026-01-06)
+  7961c8c4-a213-4b95-9944-c6de1bba1fcd
+
+│ Family Finances (Last Modified: 2025-08-15)
+│ 7b2f2eef-2f78-40aa-a9b7-57f7c1aa7b75
+
+  Household Expenses (Last Modified: 2025-06-09)
+  ea29207b-0350-4924-9703-ca7d6a78c9a1
+
+  Monthly Budget (Last Modified: 2025-02-16)
+  070302aa-2841-4959-b7c8-f6fe4349be27
+
+  Joint Expenses (Last Modified: 2024-08-01)
+  d2c66cdc-06f9-4f1a-b51c-1d236fd69d22
+
+  ••
+
+  ↑/k up • ↓/j down • / filter • q quit • ? more
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+    Select a Budget
+
+│ Personal Budget (Last Modified: 2026-01-06)
+│ 7961c8c4-a213-4b95-9944-c6de1bba1fcd
+
+  Family Finances (Last Modified: 2025-08-15)
+  7b2f2eef-2f78-40aa-a9b7-57f7c1aa7b75
+
+  Household Expenses (Last Modified: 2025-06-09)
+  ea29207b-0350-4924-9703-ca7d6a78c9a1
+
+  Monthly Budget (Last Modified: 2025-02-16)
+  070302aa-2841-4959-b7c8-f6fe4349be27
+
+  Joint Expenses (Last Modified: 2024-08-01)
+  d2c66cdc-06f9-4f1a-b51c-1d236fd69d22
+
+  ••
+
+  ↑/k up • ↓/j down • / filter • q quit • ? more
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+    Select a Budget
+
+│ Personal Budget (Last Modified: 2026-01-06)
+│ 7961c8c4-a213-4b95-9944-c6de1bba1fcd
+
+  Family Finances (Last Modified: 2025-08-15)
+  7b2f2eef-2f78-40aa-a9b7-57f7c1aa7b75
+
+  Household Expenses (Last Modified: 2025-06-09)
+  ea29207b-0350-4924-9703-ca7d6a78c9a1
+
+  Monthly Budget (Last Modified: 2025-02-16)
+  070302aa-2841-4959-b7c8-f6fe4349be27
+
+  Joint Expenses (Last Modified: 2024-08-01)
+  d2c66cdc-06f9-4f1a-b51c-1d236fd69d22
+
+  ••
+
+  ↑/k up • ↓/j down • / filter • q quit • ? more
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+    Select a Budget
+
+  Personal Budget (Last Modified: 2026-01-06)
+  7961c8c4-a213-4b95-9944-c6de1bba1fcd
+
+│ Family Finances (Last Modified: 2025-08-15)
+│ 7b2f2eef-2f78-40aa-a9b7-57f7c1aa7b75
+
+  Household Expenses (Last Modified: 2025-06-09)
+  ea29207b-0350-4924-9703-ca7d6a78c9a1
+
+  Monthly Budget (Last Modified: 2025-02-16)
+  070302aa-2841-4959-b7c8-f6fe4349be27
+
+  Joint Expenses (Last Modified: 2024-08-01)
+  d2c66cdc-06f9-4f1a-b51c-1d236fd69d22
+
+  ••
+
+  ↑/k up • ↓/j down • / filter • q quit • ? more
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+    Select a Budget
+
+  Personal Budget (Last Modified: 2026-01-06)
+  7961c8c4-a213-4b95-9944-c6de1bba1fcd
+
+│ Family Finances (Last Modified: 2025-08-15)
+│ 7b2f2eef-2f78-40aa-a9b7-57f7c1aa7b75
+
+  Household Expenses (Last Modified: 2025-06-09)
+  ea29207b-0350-4924-9703-ca7d6a78c9a1
+
+  Monthly Budget (Last Modified: 2025-02-16)
+  070302aa-2841-4959-b7c8-f6fe4349be27
+
+  Joint Expenses (Last Modified: 2024-08-01)
+  d2c66cdc-06f9-4f1a-b51c-1d236fd69d22
+
+  ••
+
+  ↑/k up • ↓/j down • / filter • q quit • ? more
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+    Select a Budget
+
+  Side Hustle (Last Modified: 2024-01-20)
+  104a4dc4-92b8-4e6a-9d0f-ddb150f1db45
+
+│ Travel Planning (Last Modified: 2023-11-26)
+│ f0f27de0-6a2a-4950-aded-c05c07d1c85d
+
+  Home Renovation (Last Modified: 2023-09-05)
+  ddf9a18c-173b-4a0d-9362-515a6caa950f
+
+
+
+
+
+
+
+  ••
+
+  ↑/k up • ↓/j down • / filter • q quit • ? more
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+    Select a Budget
+
+  Side Hustle (Last Modified: 2024-01-20)
+  104a4dc4-92b8-4e6a-9d0f-ddb150f1db45
+
+│ Travel Planning (Last Modified: 2023-11-26)
+│ f0f27de0-6a2a-4950-aded-c05c07d1c85d
+
+  Home Renovation (Last Modified: 2023-09-05)
+  ddf9a18c-173b-4a0d-9362-515a6caa950f
+
+
+
+
+
+
+
+  ••
+
+  ↑/k up • ↓/j down • / filter • q quit • ? more
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+    Select a Budget
+
+  Personal Budget (Last Modified: 2026-01-06)
+  7961c8c4-a213-4b95-9944-c6de1bba1fcd
+
+│ Family Finances (Last Modified: 2025-08-15)
+│ 7b2f2eef-2f78-40aa-a9b7-57f7c1aa7b75
+
+  Household Expenses (Last Modified: 2025-06-09)
+  ea29207b-0350-4924-9703-ca7d6a78c9a1
+
+  Monthly Budget (Last Modified: 2025-02-16)
+  070302aa-2841-4959-b7c8-f6fe4349be27
+
+  Joint Expenses (Last Modified: 2024-08-01)
+  d2c66cdc-06f9-4f1a-b51c-1d236fd69d22
+
+  ••
+
+  ↑/k up • ↓/j down • / filter • q quit • ? more
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+    Select a Budget
+
+  Personal Budget (Last Modified: 2026-01-06)
+  7961c8c4-a213-4b95-9944-c6de1bba1fcd
+
+│ Family Finances (Last Modified: 2025-08-15)
+│ 7b2f2eef-2f78-40aa-a9b7-57f7c1aa7b75
+
+  Household Expenses (Last Modified: 2025-06-09)
+  ea29207b-0350-4924-9703-ca7d6a78c9a1
+
+  Monthly Budget (Last Modified: 2025-02-16)
+  070302aa-2841-4959-b7c8-f6fe4349be27
+
+  Joint Expenses (Last Modified: 2024-08-01)
+  d2c66cdc-06f9-4f1a-b51c-1d236fd69d22
+
+  ••
+
+  ↑/k up • ↓/j down • / filter • q quit • ? more
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+  Exporting Budget...
+
+Downloading budget: Family Finances
+Please wait...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+✓ Export Complete!
+
+Budget: Family Finances
+Saved to: /home/sbrown1/Downloads/ynab-export-family-finances-20260108-141228.json
+File Size: 320.28 KB
+
+  Budget Structure (data.budget):
+╭────────────────┬────────────────────────────────────╮
+│accounts        │[table 4 rows]                      │
+│categories      │[table 20 rows]                     │
+│category_groups │[table 5 rows]                      │
+│currency_format │{record 8 fields}                   │
+│date_format     │format:MM/DD/YYYY                   │
+│first_month     │Jul 2024                            │
+│id              │7b2f2eef-2f78-40aa-a9b7-57f7c1aa7b75│
+│last_modified_on│2025-08-15T14:12:14.880701212-04:00 │
+│last_month      │Jan 2026                            │
+│name            │Family Finances                     │
+│payees          │[table 34 rows]                     │
+│transactions    │[table 576 rows]                    │
+╰────────────────┴────────────────────────────────────╯
+
+You can now import this file into Actual Budget:
+  1. Open Actual Budget
+  2. If a budget is already open, select the dropdown menu and 'Close File'
+  3. Select 'Import file'
+  4. Choose 'nYNAB'
+  5. Select the exported JSON file
+  6. Once imported, review your budget and follow cleanup steps at
+     https://actualbudget.org/docs/migration/nynab#cleanup
+>
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+✓ Export Complete!
+
+Budget: Family Finances
+Saved to: /home/sbrown1/Downloads/ynab-export-family-finances-20260108-141228.json
+File Size: 320.28 KB
+
+  Budget Structure (data.budget):
+╭────────────────┬────────────────────────────────────╮
+│accounts        │[table 4 rows]                      │
+│categories      │[table 20 rows]                     │
+│category_groups │[table 5 rows]                      │
+│currency_format │{record 8 fields}                   │
+│date_format     │format:MM/DD/YYYY                   │
+│first_month     │Jul 2024                            │
+│id              │7b2f2eef-2f78-40aa-a9b7-57f7c1aa7b75│
+│last_modified_on│2025-08-15T14:12:14.880701212-04:00 │
+│last_month      │Jan 2026                            │
+│name            │Family Finances                     │
+│payees          │[table 34 rows]                     │
+│transactions    │[table 576 rows]                    │
+╰────────────────┴────────────────────────────────────╯
+
+You can now import this file into Actual Budget:
+  1. Open Actual Budget
+  2. If a budget is already open, select the dropdown menu and 'Close File'
+  3. Select 'Import file'
+  4. Choose 'nYNAB'
+  5. Select the exported JSON file
+  6. Once imported, review your budget and follow cleanup steps at
+     https://actualbudget.org/docs/migration/nynab#cleanup
+>
+
+────────────────────────────────────────────────────────────────────────────────
+> ./ynab-export
+
+✓ Export Complete!
+
+Budget: Family Finances
+Saved to: /home/sbrown1/Downloads/ynab-export-family-finances-20260108-141228.json
+File Size: 320.28 KB
+
+  Budget Structure (data.budget):
+╭────────────────┬────────────────────────────────────╮
+│accounts        │[table 4 rows]                      │
+│categories      │[table 20 rows]                     │
+│category_groups │[table 5 rows]                      │
+│currency_format │{record 8 fields}                   │
+│date_format     │format:MM/DD/YYYY                   │
+│first_month     │Jul 2024                            │
+│id              │7b2f2eef-2f78-40aa-a9b7-57f7c1aa7b75│
+│last_modified_on│2025-08-15T14:12:14.880701212-04:00 │
+│last_month      │Jan 2026                            │
+│name            │Family Finances                     │
+│payees          │[table 34 rows]                     │
+│transactions    │[table 576 rows]                    │
+╰────────────────┴────────────────────────────────────╯
+
+You can now import this file into Actual Budget:
+  1. Open Actual Budget
+  2. If a budget is already open, select the dropdown menu and 'Close File'
+  3. Select 'Import file'
+  4. Choose 'nYNAB'
+  5. Select the exported JSON file
+  6. Once imported, review your budget and follow cleanup steps at
+     https://actualbudget.org/docs/migration/nynab#cleanup
+>
+
+────────────────────────────────────────────────────────────────────────────────

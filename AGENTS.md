@@ -17,7 +17,9 @@ This is a Go 1.25+ project that exports YNAB budgets for import into Actual Budg
 
 ### Always Use `just` Commands
 
-This project uses [Just](https://github.com/casey/just) as the task runner. **Always prefer `just` commands** over direct `go` commands, as they include necessary environment setup (like `GOEXPERIMENT=jsonv2`).
+This project uses [Just](https://github.com/casey/just) as the task runner.
+**Always prefer `just` commands** over direct `go` commands, as they include necessary
+environment setup (like `GOEXPERIMENT=jsonv2`).
 
 View all available commands:
 
@@ -109,7 +111,8 @@ just check
 
 ### GOEXPERIMENT
 
-This project **requires** `GOEXPERIMENT=jsonv2` to be set. The Justfile handles this automatically, which is why you should always use `just` commands.
+This project **requires** `GOEXPERIMENT=jsonv2` to be set. The Justfile handles this
+automatically, which is why you should always use `just` commands.
 
 If you must run `go` commands directly:
 
@@ -355,6 +358,7 @@ just --show <recipe>
 
 ## Summary
 
-**Remember the golden rule**: After every code change, run `just lint-fix` before doing anything else. This ensures your code matches the project's style and catches common issues automatically.
+**Remember the golden rule**: After every code change, run `just lint-fix` before doing anything
+else. This ensures your code matches the project's style and catches common issues automatically.
 
 Happy coding! 🚀

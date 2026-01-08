@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -256,8 +257,10 @@ func (m model) handleTokenValidated(msg tokenValidatedMsg) (model, tea.Cmd) {
 		return m, textinput.Blink
 	}
 
-	// Token is valid, save it to cache for future use (best effort, ignore errors)
-	_ = SaveCachedToken(msg.token) //nolint:errcheck // Best effort caching, don't block on failure
+	// Token is valid, save it to cache for future use (unless caching is disabled)
+	if os.Getenv("YNAB_NO_CACHE") != "true" {
+		_ = SaveCachedToken(msg.token) //nolint:errcheck // Best effort caching, don't block on failure
+	}
 
 	// Token is valid, proceed to fetch budgets
 	m.token = msg.token

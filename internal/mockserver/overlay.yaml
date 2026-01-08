@@ -1,0 +1,52 @@
+# OpenAPI Overlay to keep only the endpoints used by ynab-export
+# See: https://github.com/OAI/Overlay-Specification
+overlay: 1.0.0
+info:
+  title: YNAB Export Overlay
+  version: 1.0.0
+actions:
+  # Remove all paths except the ones we need
+  - target: $.paths['/budgets/{budget_id}/accounts']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/accounts/{account_id}']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/accounts/{account_id}/transactions']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/categories']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/categories/{category_id}']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/categories/{category_id}/transactions']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/months']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/months/{month}']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/months/{month}/categories/{category_id}']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/months/{month}/transactions']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/payee_locations']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/payee_locations/{payee_location_id}']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/payees']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/payees/{payee_id}']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/payees/{payee_id}/payee_locations']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/payees/{payee_id}/transactions']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/scheduled_transactions']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/scheduled_transactions/{scheduled_transaction_id}']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/settings']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/transactions']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/transactions/{transaction_id}']
+    remove: true
+  - target: $.paths['/budgets/{budget_id}/transactions/import']
+    remove: true

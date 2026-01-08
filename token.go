@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // TokenSource indicates where the API token was obtained from.
@@ -121,12 +122,25 @@ func DeleteCachedToken() error {
 	return nil
 }
 
-// GetTokenCacheLocation returns the path where the token is/would be cached.
-// Useful for displaying to the user.
+// GetTokenCacheLocation returns a user-friendly path where the token is/would be cached.
+// This returns a display-friendly format like ~/.cache/ynab-export/ynab-api-token
+// to avoid exposing the actual username in the path.
 func GetTokenCacheLocation() string {
 	tokenPath, err := getTokenCachePath()
 	if err != nil {
 		return "(unable to determine cache location)"
 	}
+
+	// Get home directory to create user-friendly path
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return tokenPath
+	}
+
+	// Replace home directory with ~ for display
+	if strings.HasPrefix(tokenPath, homeDir) {
+		return "~" + tokenPath[len(homeDir):]
+	}
+
 	return tokenPath
 }
