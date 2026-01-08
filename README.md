@@ -35,6 +35,32 @@ Choose the appropriate binary:
 
 The binaries are ready to run - no extraction or installation needed!
 
+**Download via terminal:**
+
+```bash
+# Linux (64-bit)
+curl -L -o ynab-export https://github.com/StephenBrown2/ynab-export/releases/latest/download/ynab-export_linux_amd64
+chmod +x ynab-export
+
+# Linux (ARM64)
+curl -L -o ynab-export https://github.com/StephenBrown2/ynab-export/releases/latest/download/ynab-export_linux_arm64
+chmod +x ynab-export
+
+# macOS (Apple Silicon)
+curl -L -o ynab-export https://github.com/StephenBrown2/ynab-export/releases/latest/download/ynab-export_darwin_arm64
+chmod +x ynab-export
+
+# macOS (Intel)
+curl -L -o ynab-export https://github.com/StephenBrown2/ynab-export/releases/latest/download/ynab-export_darwin_amd64
+chmod +x ynab-export
+```
+
+**Windows (PowerShell):**
+
+```powershell
+Invoke-WebRequest -Uri https://github.com/StephenBrown2/ynab-export/releases/latest/download/ynab-export_windows_amd64.exe -OutFile ynab-export.exe
+```
+
 <details>
 <summary><b>Advanced: Build from Source</b></summary>
 
@@ -100,11 +126,14 @@ Simply run the downloaded binary:
 **Linux/macOS:**
 
 ```bash
-# Make it executable (first time only)
-chmod +x ynab-export_*_linux_amd64  # or darwin_amd64/darwin_arm64
+# Make it executable (if not already)
+chmod +x ynab-export
 
 # Run it
-./ynab-export_*_linux_amd64
+./ynab-export
+
+# Or provide your token directly
+./ynab-export --token "your-api-token-here"
 ```
 
 **Windows:**
@@ -112,7 +141,10 @@ chmod +x ynab-export_*_linux_amd64  # or darwin_amd64/darwin_arm64
 Run from Command Prompt, PowerShell, or Windows Terminal:
 
 ```cmd
-ynab-export_0.0.1_windows_amd64.exe
+ynab-export.exe
+
+REM Or provide your token directly
+ynab-export.exe --token "your-api-token-here"
 ```
 
 > **Note:** Do not double-click the `.exe` file - it must be run from
@@ -127,17 +159,33 @@ ynab-export_0.0.1_windows_amd64.exe
 > Once installed, right-click in your Downloads folder and select
 > "Open in Terminal" to run the executable.
 
-> **Tip:** You can rename the binary to simply `ynab-export` (or `ynab-export.exe` on Windows) for easier use.
+> **Tip:** If you downloaded from the browser, you can rename the binary to simply `ynab-export` (or `ynab-export.exe` on Windows) for easier use.
 
 ### Step 3: Follow the Prompts
 
 The tool will guide you through:
 
 1. **Enter your API token** (the token you generated in Step 1)
-   - **Tip**: Set the `YNAB_API_TOKEN` environment variable to skip entering your token each time
+   - The tool validates the token length (43 characters) as you type
+   - **Your token is automatically saved** for future use
+   - On subsequent runs, the tool will use your cached token
 2. **Select your budget** from the list of budgets in your YNAB account
 3. **Wait for export** - the tool downloads your budget data
 4. **Done!** Your budget is saved to `~/Downloads/ynab-export-budget-name-YYYYMMDD-HHMMSS.json`
+
+<details>
+<summary><b>Token Priority Order</b></summary>
+
+The tool looks for your token in this order:
+
+1. **Command-line flag** (`-t` or `--token`)
+2. **Environment variable** (`YNAB_API_TOKEN`)
+3. **Cached token** (stored in `~/.cache/ynab-export/ynab-api-token` on Linux/macOS)
+4. **Manual entry** (prompted in the app)
+
+If a cached token becomes invalid (e.g., revoked on YNAB), it will be automatically deleted.
+
+</details>
 
 <details>
 <summary><b>Advanced: Using Environment Variable for Token</b></summary>
@@ -198,14 +246,24 @@ Now that you have your exported JSON file:
 
 ### 2. Token Validation
 
+As you type, the tool validates your token length:
+
 ```text
 ┌────────────────────────────────────────────────────┐
 │ YNAB Budget Exporter                               │
 │                                                    │
-│ ✓ Token validated successfully                     │
+│ Enter your YNAB API token: ••••••••••••••••••     │
+│ ⚠ Token too short (18/43 characters)              │
 │                                                    │
-│ Fetching your budgets...                          │
+│ Press Enter to continue • Ctrl+C to quit          │
 └────────────────────────────────────────────────────┘
+```
+
+Once the token is the correct length:
+
+```text
+│ Enter your YNAB API token: •••••••••••••••••••••  │
+│ ✓ Token length valid                              │
 ```
 
 ### 3. Budget Selection
@@ -252,15 +310,18 @@ Now that you have your exported JSON file:
 │ Budget: Personal Budget                           │
 │ Saved to: ~/Downloads/ynab-export-personal-       │
 │           budget-20251015-143022.json             │
+│ File Size: 2.3 MB                                 │
 │                                                    │
-│ Budget Summary:                                   │
-│   Currency:     USD ($)                           │
-│   Accounts:     8 (plus 2 closed)                 │
-│   Categories:   24 (plus 3 hidden, 1 deleted)     │
-│   Payees:       142                               │
-│   Transactions: 1,847                             │
-│   Date Range:   Jan 2023 to Oct 2025              │
-│   File Size:    2.3 MB                            │
+│ Budget Structure (data.budget):                   │
+│ ╭────────────────────────┬───────────────────────╮│
+│ │ id                     │ "abc123-..."          ││
+│ │ name                   │ "Personal Budget"     ││
+│ │ accounts               │ [list 8 items]        ││
+│ │ categories             │ [list 24 items]       ││
+│ │ payees                 │ [list 142 items]      ││
+│ │ transactions           │ [list 1847 items]     ││
+│ │ ...                    │ ...                   ││
+│ ╰────────────────────────┴───────────────────────╯│
 │                                                    │
 │ You can now import this file into Actual Budget:  │
 │   1. Open Actual Budget                           │
@@ -272,8 +333,6 @@ Now that you have your exported JSON file:
 │   6. Once imported, review your budget and        │
 │      follow cleanup steps at                      │
 │      actualbudget.org/docs/migration/nynab#cleanup│
-│                                                    │
-│ Press Enter or q to quit                          │
 └────────────────────────────────────────────────────┘
 ```
 
@@ -282,7 +341,7 @@ Now that you have your exported JSON file:
 - **Arrow Keys** (↑/↓): Navigate through budget list
 - **/** : Filter/search budgets
 - **Enter**: Select/Confirm
-- **Esc**: Go back to previous screen
+- **Esc**: Clear filter or go back to previous screen
 - **Ctrl+C** or **q**: Quit the application
 
 ## Troubleshooting
@@ -290,6 +349,12 @@ Now that you have your exported JSON file:
 ### "API error: 401 Unauthorized"
 
 Your API token is invalid or expired. Generate a new token from YNAB's Developer Settings.
+If you had a cached token, it will be automatically cleared.
+
+### "Token from cached token file is no longer valid"
+
+Your cached token has been revoked or expired. The invalid token has been deleted.
+Enter a new token when prompted, or provide one via the `--token` flag.
 
 ### "No budgets found"
 
@@ -304,11 +369,8 @@ Check that you have write permissions to your Downloads folder.
 macOS may block the binary because it's not from an identified developer. To run it:
 
 ```bash
-# Replace with your actual binary name, e.g., ynab-export_0.0.1_darwin_arm64
-xattr -d com.apple.quarantine ynab-export_*_darwin_*
-
-# Or make it executable
-chmod +x ynab-export_*_darwin_*
+# Remove the quarantine attribute
+xattr -d com.apple.quarantine ynab-export
 ```
 
 Or right-click the file, select "Open", and click "Open" in the security dialog.

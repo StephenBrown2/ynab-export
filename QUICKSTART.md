@@ -16,23 +16,25 @@ Visit: <https://app.ynab.com/settings/developer>
 
 1. Go to [Releases][releases]
 2. Download for your OS
-3. Extract and run the executable
+3. Run the executable from a terminal
 
 ### Option B: Build from Source
 
 ```bash
 git clone https://github.com/StephenBrown2/ynab-export.git
 cd ynab-export
-go build
+GOEXPERIMENT=jsonv2 go build
 ./ynab-export
 ```
 
 ## 3. Follow the Prompts
 
-1. Paste your API token
+1. Paste your API token (it will be saved for future use)
 2. Select your budget from the list (use `/` to filter, `Esc` to clear filter)
 3. Wait for export to complete
 4. Find your file in `~/Downloads/ynab-export-budget-name-TIMESTAMP.json`
+
+> **Tip:** After the first run, your token is cached locally. Future runs will skip the token entry step!
 
 ## 4. Import to Actual Budget
 
@@ -51,12 +53,30 @@ Your YNAB budget is now in Actual Budget.
 - Check [Troubleshooting](README.md#troubleshooting)
 - Open an [Issue][issues]
 
+## Command-Line Options
+
+```bash
+./ynab-export [options]
+
+  -t, --token    Provide API token directly (overrides cached/env token)
+  -v, --version  Show version information
+```
+
+## Token Priority
+
+The tool looks for your token in this order:
+
+1. Command-line flag (`-t` or `--token`)
+2. Environment variable (`YNAB_API_TOKEN`)
+3. Cached token (from previous run)
+4. Manual entry (prompted in the app)
+
 ## Keyboard Shortcuts
 
 - `↑/↓` - Navigate
 - `/` - Search/Filter
 - `Enter` - Select
-- `Esc` - Go Back
+- `Esc` - Go Back / Clear Filter
 - `q` or `Ctrl+C` - Quit
 
 <!-- Link References -->
