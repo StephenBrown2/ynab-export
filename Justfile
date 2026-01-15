@@ -72,20 +72,20 @@ clean:
 
 # Install dependencies and development tools
 [group('setup')]
-deps:
-    go mod download
-    go mod tidy
-    @echo "Installing golangci-lint..."
-    @curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin
-    @echo "Installing oapi-codegen..."
-    @go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
-    @echo "Installing vhs..."
-    @go install github.com/charmbracelet/vhs@latest
-    @echo "Checking vhs runtime dependencies..."
-    @command -v ffmpeg >/dev/null 2>&1 || echo "  ⚠ ffmpeg not found. Install via: brew install ffmpeg (macOS) or your system package manager"
-    @command -v ttyd >/dev/null 2>&1 || echo "  ⚠ ttyd not found. Install via: brew install ttyd (macOS) or go install github.com/nicholasgasior/gotty@latest"
-    @echo "Installing markdownlint-cli2..."
-    @command -v markdownlint-cli2 >/dev/null 2>&1 || { \
+@deps:
+    @go mod download
+    @go mod tidy
+    echo "Installing golangci-lint..."
+    curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin
+    echo "Installing oapi-codegen..."
+    go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+    echo "Installing vhs..."
+    go install github.com/charmbracelet/vhs@latest
+    echo "Checking vhs runtime dependencies..."
+    command -v ffmpeg >/dev/null 2>&1 || echo "  ⚠ ffmpeg not found. Install via: brew install ffmpeg (macOS) or your system package manager"
+    command -v ttyd >/dev/null 2>&1 || echo "  ⚠ ttyd not found. Install via: brew install ttyd (macOS) or go install github.com/nicholasgasior/gotty@latest"
+    echo "Installing markdownlint-cli2..."
+    command -v markdownlint-cli2 >/dev/null 2>&1 || { \
         if command -v npm >/dev/null 2>&1; then \
             npm install -g markdownlint-cli2; \
         else \
@@ -129,10 +129,10 @@ build-windows-arm:
 
 # Format code using golangci-lint formatters
 [group('lint')]
-fmt:
-    just --fmt --unstable
-    @echo "Formatting code..."
-    @if command -v golangci-lint >/dev/null 2>&1; then \
+@fmt:
+    @just --fmt --unstable
+    echo "Formatting code..."
+    if command -v golangci-lint >/dev/null 2>&1; then \
         golangci-lint fmt ./...; \
     else \
         echo "ERROR: golangci-lint not found. Run 'just deps' to install it."; \
@@ -162,9 +162,9 @@ fmt-check:
 
 # Run linter with golangci-lint
 [group('lint')]
-lint:
-    @echo "Running golangci-lint..."
-    @if command -v golangci-lint >/dev/null 2>&1; then \
+@lint:
+    echo "Running golangci-lint..."
+    if command -v golangci-lint >/dev/null 2>&1; then \
         golangci-lint run ./... || { \
             echo ""; \
             echo "Linting failed! Try running 'just lint-fix' first to auto-fix issues."; \
@@ -175,20 +175,20 @@ lint:
         echo "ERROR: golangci-lint not found. Run 'just deps' to install it."; \
         exit 1; \
     fi
-    @echo "Running markdownlint..."
-    @if command -v markdownlint-cli2 >/dev/null 2>&1; then \
+    echo "Running markdownlint..."
+    if command -v markdownlint-cli2 >/dev/null 2>&1; then \
         markdownlint-cli2 '**/*.md' '#node_modules'; \
     else \
-        echo "WARNING: markdownlint-cli2 not found. Run 'just deps' for install instructions."; \
+        echo "WARNING: markdownlint-cli2 not found. Run 'just deps' to install it."; \
     fi
 
 # Run linter and automatically fix issues where possible
 [group('lint')]
-lint-fix: fmt
-    @echo "Running golangci-lint with auto-fix..."
-    @golangci-lint run --fix ./...
-    @echo "Running markdownlint with auto-fix..."
-    @if command -v markdownlint-cli2 >/dev/null 2>&1; then \
+@lint-fix: fmt
+    echo "Running golangci-lint with auto-fix..."
+    golangci-lint run --fix ./...
+    echo "Running markdownlint with auto-fix..."
+    if command -v markdownlint-cli2 >/dev/null 2>&1; then \
         markdownlint-cli2 --fix '**/*.md' '#node_modules' || true; \
     fi
 
@@ -199,33 +199,33 @@ check: fmt-check lint test
 
 # Show Go environment information
 [group('setup')]
-info:
-    @echo "Go version:"
-    @go version
-    @echo ""
-    @echo "Go environment:"
-    @go env GOOS GOARCH
-    @echo ""
-    @echo "Module info:"
-    @go list -m
+@info:
+    echo "Go version:"
+    go version
+    echo ""
+    echo "Go environment:"
+    go env GOOS GOARCH
+    echo ""
+    echo "Module info:"
+    go list -m
 
 # Create a new release (tags and pushes)
 [group('release')]
-release version:
-    @echo "Creating release {{ version }}"
-    @git push origin master
-    git tag -a {{ version }} -m "Release {{ version }}"
-    git push origin {{ version }}
-    @echo
-    @echo "Monitor the release on GitHub:"
-    @echo "https://github.com/StephenBrown2/ynab-export/actions"
-    @echo "https://github.com/StephenBrown2/ynab-export/releases/tag/{{ version }}"
+@release version:
+    echo "Creating release {{ version }}"
+    git push origin master
+    @git tag -a {{ version }} -m "Release {{ version }}"
+    @git push origin {{ version }}
+    echo
+    echo "Monitor the release on GitHub:"
+    echo "https://github.com/StephenBrown2/ynab-export/actions"
+    echo "https://github.com/StephenBrown2/ynab-export/releases/tag/{{ version }}"
 
 # Delete a release tag and recreate it (useful for fixing failed releases)
 [group('release')]
-redo-release version:
-    @echo "Deleting tag {{ version }} locally and remotely..."
+@redo-release version:
+    echo "Deleting tag {{ version }} locally and remotely..."
     -git tag -d {{ version }}
     -git push origin :refs/tags/{{ version }}
-    @echo "Recreating release {{ version }}"
-    @just release {{ version }}
+    echo "Recreating release {{ version }}"
+    just release {{ version }}
